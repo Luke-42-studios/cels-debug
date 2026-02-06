@@ -1,6 +1,7 @@
 #include "tab_system.h"
 #include "tabs/tab_overview.h"
-#include "tabs/tab_ecs.h"
+#include "tabs/tab_cels.h"
+#include "tabs/tab_systems.h"
 #include "tabs/tab_placeholder.h"
 
 /* Tab definitions (static, const) */
@@ -8,13 +9,13 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Overview",     ENDPOINT_STATS_WORLD | ENDPOINT_QUERY,
       tab_overview_init, tab_overview_fini,
       tab_overview_draw, tab_overview_input },
-    { "ECS",          ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_COMPONENTS | ENDPOINT_STATS_PIPELINE,
-      tab_ecs_init, tab_ecs_fini,
-      tab_ecs_draw, tab_ecs_input },
+    { "CELS",         ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_COMPONENTS,
+      tab_cels_init, tab_cels_fini,
+      tab_cels_draw, tab_cels_input },
+    { "Systems",      ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_STATS_PIPELINE,
+      tab_systems_init, tab_systems_fini,
+      tab_systems_draw, tab_systems_input },
     { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE,
-      tab_placeholder_init, tab_placeholder_fini,
-      tab_placeholder_draw, tab_placeholder_input },
-    { "State",        ENDPOINT_NONE,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },
 };

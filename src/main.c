@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
 
     /* State */
     app_state_t app_state = {0};  /* snapshot=NULL, conn_state=CONN_DISCONNECTED */
+    app_state.pending_tab = -1;
     int64_t last_poll = 0;
 
     /* Main loop */
@@ -70,6 +71,12 @@ int main(int argc, char *argv[]) {
             tab_system_next(&tabs);
         } else if (ch != ERR) {
             tab_system_handle_input(&tabs, ch, &app_state);
+        }
+
+        /* Cross-tab navigation (e.g., Systems tab -> CELS tab) */
+        if (app_state.pending_tab >= 0) {
+            tab_system_activate(&tabs, app_state.pending_tab);
+            app_state.pending_tab = -1;
         }
 
         /* Step 2: Poll on timer -- always poll /stats/world for connection health.

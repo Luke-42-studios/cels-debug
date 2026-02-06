@@ -49,6 +49,7 @@ typedef struct app_state {
     char                  *selected_entity_path; /* slash-separated path of selected entity, or NULL */
     char                  *footer_message;    /* transient message (e.g., "Entity X removed") */
     int64_t                footer_message_expire; /* timestamp when message should clear */
+    int                    pending_tab;      /* cross-tab navigation: >=0 = switch to tab, -1 = none */
 } app_state_t;
 
 /* Initialize ncurses, signal handlers, atexit, color pairs, windows. */
