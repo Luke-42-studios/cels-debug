@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 05 in progress (State, Performance, and Polish)
+**Current focus:** Phase 05 complete (State, Performance, and Polish) -- v0.1 MVP done
 
 ## Current Position
 
 Phase: 05 of 05 (State, Performance, and Polish)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 05-03-PLAN.md (Performance tab waterfall)
+Plan: 4 of 4 in current phase
+Status: Phase complete -- all phases done
+Last activity: 2026-02-06 -- Completed 05-04-PLAN.md (navigation, reconnect, polish)
 
-Progress: [█████████░] 89%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -37,6 +37,8 @@ Progress: [█████████░] 89%
 - Phase 05 Plan 01: ~6 minutes
 - Phase 05 Plan 02: ~2 minutes
 - Phase 05 Plan 03: ~2 minutes
+- Phase 05 Plan 04: ~2 minutes
+- Phase 05 total: ~12 minutes
 
 **By Phase:**
 
@@ -47,7 +49,7 @@ Progress: [█████████░] 89%
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
 | 04-systems-and-pipeline | 4/4 | Complete |
-| 05-state-performance-and-polish | 3/4 | In progress |
+| 05-state-performance-and-polish | 4/4 | Complete |
 
 ## Accumulated Context
 
@@ -103,6 +105,10 @@ Recent decisions affecting current work:
 - [05-03]: Self-contained phase detection in Performance tab via entity tags (independent of other tabs' classify step)
 - [05-03]: ENDPOINT_QUERY added to Performance tab for entity tag access
 - [05-03]: tab_placeholder.c removed from build (no remaining tab_defs references)
+- [05-04]: Nav stack helpers static in main.c (only main loop uses push/pop/clear)
+- [05-04]: Footer hints inline switch in tui_render (context-sensitive per active tab)
+- [05-04]: -r flag parsed with atoi + clamp (100-5000ms) for configurable poll interval
+- [05-04]: CONN_RECONNECTING || CONN_CONNECTED both -> RECONNECTING on failure (auto-reconnect fix)
 
 ### Roadmap Evolution
 
@@ -126,9 +132,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-02-PLAN.md and 05-03-PLAN.md -- State section + Performance tab done, ready for 05-04
+Stopped at: Completed 05-04-PLAN.md -- all phases complete, v0.1 MVP done
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Plan 05-02 complete: State section in CELS tab with change highlighting)*
+*Updated: 2026-02-06 (Plan 05-04 complete: navigation, reconnect, polish -- all phases done)*
