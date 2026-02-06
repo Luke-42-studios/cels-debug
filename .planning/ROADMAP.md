@@ -13,7 +13,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - [x] **Phase 01: Foundation (Build, Connect, Render)** - CMake project, HTTP pipeline, ncurses shell, basic stats display
 - [x] **Phase 02: Tab System and Overview** - Tab vtable framework, tab bar navigation, Overview dashboard
 - [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
-- [ ] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
+- [x] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
 - [ ] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
 - [ ] **Phase 05: State, Performance, and Polish** - State tab, performance metrics, auto-reconnect, navigation polish
 
@@ -87,7 +87,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03.1-01-PLAN.md -- Create tab_ecs (merged entity+component), update wiring to 4-tab layout
+- [x] 03.1-01-PLAN.md -- Create tab_ecs (merged entity+component), update wiring to 4-tab layout
 
 **Details:**
 Current state: Phase 03 built entity/component tabs as separate views. User testing revealed the need to:
@@ -169,10 +169,10 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 01. Foundation | 3/3 | Complete | 2026-02-05 |
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
-| 03.1 Redesign Navigation — ECS Tabs | 0/1 | Not started | - |
+| 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
 | 04. Systems and Pipeline | 0/? | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03.1 planned: 1 plan in 1 wave)*
+*Updated: 2026-02-06 (Phase 03.1 complete: ECS tab redesign verified)*

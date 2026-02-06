@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 03 complete (Entities and Components) -- Phase 04 next (Systems and Pipeline)
+**Current focus:** Phase 04 next (Systems and Pipeline)
 
 ## Current Position
 
-Phase: 03 of 05 (Entities and Components) -- COMPLETE
-Plan: 4 of 4 in current phase
+Phase: 03.1 of 05 (Redesign Navigation — ECS Tabs) -- COMPLETE
+Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-02-06 -- Completed 03-04-PLAN.md (Components tab)
+Last activity: 2026-02-06 -- Completed 03.1-01-PLAN.md (ECS tab redesign)
 
-Progress: [██████....] 60%
+Progress: [███████...] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -37,6 +37,7 @@ Progress: [██████....] 60%
 | 01-foundation | 3/3 | Complete |
 | 02-tab-system-and-overview | 2/2 | Complete |
 | 03-entities-and-components | 4/4 | Complete |
+| 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
 
 ## Accumulated Context
 
@@ -71,6 +72,14 @@ Recent decisions affecting current work:
 - [03-04]: Sort component list alphabetically in draw (not parser) via qsort
 - [03-04]: Entity filtering fresh each draw call, no caching needed for <5K entities
 
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 03: Redesign Navigation — ECS Tabs (URGENT)
+  - Top-level tabs → Overview, ECS, Performance, State
+  - ECS tab contains CELS-C tree view (Compositions, Entities, Lifecycles, Systems, Components)
+  - Components becomes a section inside ECS, not a separate tab
+  - Section headers navigable + collapsible, bold first letter spells CELS-C
+
 ### Pending Todos
 
 None.
@@ -82,9 +91,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-04-PLAN.md (Components tab -- Phase 03 complete)
+Stopped at: Completed 03.1-01-PLAN.md (ECS tab redesign -- Phase 03.1 complete)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03 complete -- all 4 plans executed)*
+*Updated: 2026-02-06 (Phase 03.1 complete -- ECS tab redesign verified)*
