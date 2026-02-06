@@ -371,6 +371,201 @@ static void sync_selected_path(ecs_state_t *es, app_state_t *state) {
     }
 }
 
+/* --- Inspector: pipeline visualization (phase sub-header selected) --- */
+
+static void draw_pipeline_viz(WINDOW *rwin, int rh, int rw,
+                               tree_view_t *tree, int selected_phase,
+                               const app_state_t *state) {
+    /* Title */
+    wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    mvwprintw(rwin, 1, 1, "Pipeline Execution Order");
+    wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+
+    /* Separator */
+    wattron(rwin, A_DIM);
+    wmove(rwin, 2, 1);
+    for (int x = 0; x < rw; x++) waddch(rwin, ACS_HLINE);
+    wattroff(rwin, A_DIM);
+
+    int row = 4;
+    #define PIPE_VERT  "\xe2\x94\x82"
+    #define PIPE_ARROW "\xe2\x86\x93"
+
+    double total_time = 0.0;
+    int total_systems = 0;
+
+    for (int p = 0; p < tree->phase_count; p++) {
+        if (row >= rh) break;
+
+        bool is_selected = (p == selected_phase);
+        int cp = phase_color_pair(tree->phase_names[p]);
+
+        if (is_selected) wattron(rwin, A_REVERSE);
+
+        /* Phase name in color */
+        wattron(rwin, COLOR_PAIR(cp) | A_BOLD);
+        mvwprintw(rwin, row, 3, "%-14s", tree->phase_names[p]);
+        wattroff(rwin, COLOR_PAIR(cp) | A_BOLD);
+
+        /* System count */
+        int sys_count = tree->phase_system_counts[p];
+        wprintw(rwin, " %d system%s", sys_count, sys_count == 1 ? "" : "s");
+        total_systems += sys_count;
+
+        /* Timing: sum time_spent_ms for systems in this phase */
+        if (state->system_registry && state->entity_list) {
+            double phase_time = 0.0;
+            for (int s = 0; s < state->system_registry->count; s++) {
+                system_info_t *si = &state->system_registry->systems[s];
+                /* Find entity node for this system to check its phase */
+                for (int e = 0; e < state->entity_list->root_count; e++) {
+                    entity_node_t *en = state->entity_list->roots[e];
+                    if (en->entity_class == ENTITY_CLASS_SYSTEM &&
+                        en->name && si->name &&
+                        strcmp(en->name, si->name) == 0 &&
+                        en->class_detail &&
+                        strcmp(en->class_detail, tree->phase_names[p]) == 0) {
+                        phase_time += si->time_spent_ms;
+                        break;
+                    }
+                }
+            }
+            if (phase_time > 0.0) {
+                wprintw(rwin, "   %.1fms", phase_time);
+                total_time += phase_time;
+            }
+        }
+
+        if (is_selected) wattroff(rwin, A_REVERSE);
+        row++;
+
+        /* Draw connector to next phase */
+        if (p < tree->phase_count - 1 && row + 1 < rh) {
+            wattron(rwin, A_DIM);
+            mvwprintw(rwin, row, 6, PIPE_VERT);
+            row++;
+            mvwprintw(rwin, row, 6, PIPE_ARROW);
+            row++;
+            wattroff(rwin, A_DIM);
+        }
+    }
+
+    /* Total summary */
+    row += 1;
+    if (row < rh) {
+        wattron(rwin, A_DIM);
+        wmove(rwin, row, 1);
+        for (int x = 0; x < rw; x++) waddch(rwin, ACS_HLINE);
+        wattroff(rwin, A_DIM);
+        row++;
+    }
+    if (row < rh) {
+        mvwprintw(rwin, row, 3, "Total: %d system%s",
+                  total_systems, total_systems == 1 ? "" : "s");
+        if (total_time > 0.0) {
+            wprintw(rwin, ", %.1fms/frame", total_time);
+        }
+    }
+}
+
+/* --- Inspector: systems summary (Systems section header selected) --- */
+
+static void draw_systems_summary(WINDOW *rwin, int rh, int rw,
+                                  const app_state_t *state) {
+    /* Title */
+    wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    mvwprintw(rwin, 1, 1, "Systems Overview");
+    wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+
+    /* Separator */
+    wattron(rwin, A_DIM);
+    wmove(rwin, 2, 1);
+    for (int x = 0; x < rw; x++) waddch(rwin, ACS_HLINE);
+    wattroff(rwin, A_DIM);
+
+    if (!state->entity_list) {
+        wattron(rwin, A_DIM);
+        mvwprintw(rwin, 4, 3, "Waiting for data...");
+        wattroff(rwin, A_DIM);
+        return;
+    }
+
+    /* Count totals */
+    int total = 0, enabled = 0, disabled = 0;
+    for (int i = 0; i < state->entity_list->root_count; i++) {
+        entity_node_t *n = state->entity_list->roots[i];
+        if (n->entity_class != ENTITY_CLASS_SYSTEM) continue;
+        total++;
+        if (n->disabled) disabled++;
+        else enabled++;
+    }
+
+    int row = 4;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 3, "Total Systems");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    wattron(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+    mvwprintw(rwin, row, 20, "%d", total);
+    wattroff(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+
+    row++;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 3, "Enabled");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    wattron(rwin, COLOR_PAIR(CP_CONNECTED));
+    mvwprintw(rwin, row, 20, "%d", enabled);
+    wattroff(rwin, COLOR_PAIR(CP_CONNECTED));
+
+    row++;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 3, "Disabled");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    if (disabled > 0) {
+        wattron(rwin, COLOR_PAIR(CP_DISCONNECTED));
+        mvwprintw(rwin, row, 20, "%d", disabled);
+        wattroff(rwin, COLOR_PAIR(CP_DISCONNECTED));
+    } else {
+        wattron(rwin, A_DIM);
+        mvwprintw(rwin, row, 20, "0");
+        wattroff(rwin, A_DIM);
+    }
+
+    /* Phase distribution */
+    row += 2;
+    wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    mvwprintw(rwin, row, 1, "Phase Distribution");
+    wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    row++;
+
+    char *phases[32];
+    int pcounts[32];
+    int pcount = 0;
+
+    for (int i = 0; i < state->entity_list->root_count; i++) {
+        entity_node_t *n = state->entity_list->roots[i];
+        if (n->entity_class != ENTITY_CLASS_SYSTEM) continue;
+        const char *ph = n->class_detail ? n->class_detail : "Unknown";
+        bool found = false;
+        for (int p = 0; p < pcount; p++) {
+            if (strcmp(phases[p], ph) == 0) { pcounts[p]++; found = true; break; }
+        }
+        if (!found && pcount < 32) {
+            phases[pcount] = (char *)ph;
+            pcounts[pcount] = 1;
+            pcount++;
+        }
+    }
+
+    for (int p = 0; p < pcount && row < rh; p++) {
+        int cp = phase_color_pair(phases[p]);
+        wattron(rwin, COLOR_PAIR(cp));
+        mvwprintw(rwin, row, 3, "%-14s", phases[p]);
+        wattroff(rwin, COLOR_PAIR(cp));
+        wprintw(rwin, " %d", pcounts[p]);
+        row++;
+    }
+}
+
 /* --- Lifecycle --- */
 
 void tab_ecs_init(tab_t *self) {
@@ -460,11 +655,24 @@ void tab_ecs_draw(const tab_t *self, WINDOW *win, const void *app_state) {
 
     /* --- Right panel: context-sensitive inspector --- */
     entity_node_t *sel = tree_view_selected(&es->tree);
+    display_row_t *cur_row = NULL;
+    if (es->tree.rows && es->tree.scroll.cursor >= 0 &&
+        es->tree.scroll.cursor < es->tree.row_count) {
+        cur_row = &es->tree.rows[es->tree.scroll.cursor];
+    }
     WINDOW *rwin = es->panel.right;
     int rh = getmaxy(rwin) - 2;
     int rw = getmaxx(rwin) - 2;
 
-    if (sel && sel->entity_class == ENTITY_CLASS_COMPONENT) {
+    if (cur_row && !cur_row->node && cur_row->section_idx == ENTITY_CLASS_SYSTEM) {
+        if (cur_row->phase_group >= 0) {
+            /* --- Branch: Phase sub-header selected -> Pipeline visualization --- */
+            draw_pipeline_viz(rwin, rh, rw, &es->tree, cur_row->phase_group, state);
+        } else {
+            /* --- Branch: Systems section header selected -> Summary stats --- */
+            draw_systems_summary(rwin, rh, rw, state);
+        }
+    } else if (sel && sel->entity_class == ENTITY_CLASS_COMPONENT) {
         /* --- Branch A: Component type selected -- show entities with this component --- */
         const char *comp_name = sel->name;
 
