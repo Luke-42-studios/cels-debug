@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 05 next (State, Performance, and Polish)
+**Current focus:** Phase 05 in progress (State, Performance, and Polish)
 
 ## Current Position
 
-Phase: 04 of 05 (Systems and Pipeline) -- COMPLETE
-Plan: 4 of 4 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-06 -- Phase 04 verified (6/6 must-haves passed)
+Phase: 05 of 05 (State, Performance, and Polish)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 05-01-PLAN.md (tab restructure)
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -34,6 +34,7 @@ Progress: [████████░░] 80%
 - Phase 04 Plan 03: ~2 minutes
 - Phase 04 Plan 04: ~2 minutes
 - Phase 04 total: ~11 minutes
+- Phase 05 Plan 01: ~6 minutes
 
 **By Phase:**
 
@@ -44,6 +45,7 @@ Progress: [████████░░] 80%
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
 | 04-systems-and-pipeline | 4/4 | Complete |
+| 05-state-performance-and-polish | 1/4 | In progress |
 
 ## Accumulated Context
 
@@ -89,6 +91,10 @@ Recent decisions affecting current work:
 - [04-04]: Approximate entity matching filters out flecs.* and Component-type components
 - [04-04]: Cross-navigation tries Entities section first, then Compositions section
 - [04-04]: Footer message uses CLOCK_MONOTONIC with 3-second expiry for entity-not-found
+- [05-01]: scroll_state_t flat display list for Systems tab (simpler than tree_view for single-section display)
+- [05-01]: hide_systems_from_tree() reclassifies ENTITY_CLASS_SYSTEM as ENTITY_CLASS_ENTITY in CELS tab
+- [05-01]: pending_tab field in app_state_t for deferred cross-tab navigation
+- [05-01]: Endpoint bitmasks refined: CELS drops PIPELINE, Systems gets PIPELINE
 
 ### Roadmap Evolution
 
@@ -97,6 +103,9 @@ Recent decisions affecting current work:
   - ECS tab contains CELS-C tree view (Compositions, Entities, Lifecycles, Systems, Components)
   - Components becomes a section inside ECS, not a separate tab
   - Section headers navigable + collapsible, bold first letter spells CELS-C
+- Phase 05 Plan 01: Tabs restructured to [Overview, CELS, Systems, Performance]
+  - ECS tab renamed to CELS, Systems section extracted to own tab
+  - CELS tab now shows C-E-L-C (State section added in Plan 02 completes C-E-L-S-C)
 
 ### Pending Todos
 
@@ -109,9 +118,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 04 complete and verified -- ready for Phase 05
+Stopped at: Completed 05-01-PLAN.md -- tab restructure done, ready for 05-02
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 complete and verified -- 6/6 must-haves passed)*
+*Updated: 2026-02-06 (Plan 05-01 complete: tab restructure [Overview, CELS, Systems, Performance])*
