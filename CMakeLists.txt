@@ -33,10 +33,10 @@ add_executable(cels-debug
     src/split_panel.c
     src/json_render.c
     src/tree_view.c
-    src/tabs/tab_placeholder.c
     src/tabs/tab_overview.c
     src/tabs/tab_cels.c
     src/tabs/tab_systems.c
+    src/tabs/tab_performance.c
 )
 
 set_target_properties(cels-debug PROPERTIES

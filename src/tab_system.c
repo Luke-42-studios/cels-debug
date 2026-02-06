@@ -2,7 +2,7 @@
 #include "tabs/tab_overview.h"
 #include "tabs/tab_cels.h"
 #include "tabs/tab_systems.h"
-#include "tabs/tab_placeholder.h"
+#include "tabs/tab_performance.h"
 
 /* Tab definitions (static, const) */
 static const tab_def_t tab_defs[TAB_COUNT] = {
@@ -15,9 +15,9 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Systems",      ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_STATS_PIPELINE,
       tab_systems_init, tab_systems_fini,
       tab_systems_draw, tab_systems_input },
-    { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE,
-      tab_placeholder_init, tab_placeholder_fini,
-      tab_placeholder_draw, tab_placeholder_input },
+    { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE | ENDPOINT_QUERY,
+      tab_performance_init, tab_performance_fini,
+      tab_performance_draw, tab_performance_input },
 };
 
 void tab_system_init(tab_system_t *ts) {
