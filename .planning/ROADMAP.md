@@ -98,18 +98,22 @@ Current state: Phase 03 built entity/component tabs as separate views. User test
 - Bold first letter of each section spelling CELS-C vertically
 
 ### Phase 04: Systems and Pipeline
-**Goal**: Users can see all registered systems grouped by execution phase with enabled/disabled status
+**Goal**: Users can see all registered systems grouped by execution phase with enabled/disabled status, with pipeline visualization and system detail inspector
 **Depends on**: Phase 03
 **Requirements**: F4
 **Success Criteria** (what must be TRUE):
-  1. Systems tab displays all registered systems from /query endpoint
-  2. Systems are grouped by phase (Phase_Input, Phase_Update, Phase_Render, etc.)
-  3. Each system shows name, phase, and enabled/disabled status
-  4. Pipeline visualization shows phase execution ordering
-**Plans**: TBD
+  1. Systems section in CELS-C tree displays all registered systems from /query endpoint
+  2. Systems are grouped by Flecs execution phase (OnLoad, OnUpdate, OnStore, etc.)
+  3. Each system shows name, color-coded phase tag, enabled/disabled status, and match count
+  4. Pipeline visualization shows phase execution ordering with timing data
+  5. System detail inspector shows metadata and matched entity list
+  6. Cross-navigation from matched entities to Entities section
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- Data pipeline: system data model, pipeline stats parser, polling, phase colors
+- [ ] 04-02-PLAN.md -- Tree view phase grouping, system enrichment, pipeline viz + summary inspector
+- [ ] 04-03-PLAN.md -- System detail inspector + cross-navigation
 
 ### Phase 05: State, Performance, and Polish
 **Goal**: CELS-specific State and Performance tabs complete the inspector, with polished auto-reconnect and configurable refresh
@@ -170,9 +174,9 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
-| 04. Systems and Pipeline | 0/? | Not started | - |
+| 04. Systems and Pipeline | 0/3 | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03.1 complete: ECS tab redesign verified)*
+*Updated: 2026-02-06 (Phase 04 planned: 3 plans in 3 waves)*
