@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 04 (Systems and Pipeline) -- in progress
+**Current focus:** Phase 04 (Systems and Pipeline) -- complete
 
 ## Current Position
 
 Phase: 04 of 05 (Systems and Pipeline)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 04-03-PLAN.md (system enrichment + inspector branches)
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 -- Completed 04-04-PLAN.md (system detail inspector + cross-navigation)
 
-Progress: [█████████.] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -32,6 +32,8 @@ Progress: [█████████.] 93%
 - Phase 04 Plan 01: ~4 minutes
 - Phase 04 Plan 02: ~3 minutes
 - Phase 04 Plan 03: ~2 minutes
+- Phase 04 Plan 04: ~2 minutes
+- Phase 04 total: ~11 minutes
 
 **By Phase:**
 
@@ -41,7 +43,7 @@ Progress: [█████████.] 93%
 | 02-tab-system-and-overview | 2/2 | Complete |
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
-| 04-systems-and-pipeline | 3/4 | In progress |
+| 04-systems-and-pipeline | 4/4 | Complete |
 
 ## Accumulated Context
 
@@ -84,11 +86,14 @@ Recent decisions affecting current work:
 - [04-03]: PHASE_ORDER and phase_color_pair() duplicated in tab_ecs.c with sync comments (avoids header changes)
 - [04-03]: Inspector dispatch uses cur_row (display_row_t*) to detect headers before entity checks
 - [04-03]: Pipeline viz aggregates per-phase timing by cross-referencing system_registry with entity classification
+- [04-04]: Approximate entity matching filters out flecs.* and Component-type components
+- [04-04]: Cross-navigation tries Entities section first, then Compositions section
+- [04-04]: Footer message uses CLOCK_MONOTONIC with 3-second expiry for entity-not-found
 
 ### Roadmap Evolution
 
-- Phase 03.1 inserted after Phase 03: Redesign Navigation — ECS Tabs (URGENT)
-  - Top-level tabs → Overview, ECS, Performance, State
+- Phase 03.1 inserted after Phase 03: Redesign Navigation -- ECS Tabs (URGENT)
+  - Top-level tabs -> Overview, ECS, Performance, State
   - ECS tab contains CELS-C tree view (Compositions, Entities, Lifecycles, Systems, Components)
   - Components becomes a section inside ECS, not a separate tab
   - Section headers navigable + collapsible, bold first letter spells CELS-C
@@ -104,9 +109,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-03-PLAN.md (system enrichment + inspector branches)
+Stopped at: Completed 04-04-PLAN.md (system detail inspector + cross-navigation) -- Phase 04 complete
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 Plan 03 complete -- system enrichment + inspector branches)*
+*Updated: 2026-02-06 (Phase 04 complete -- all 4 plans done)*
