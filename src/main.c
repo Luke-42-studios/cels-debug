@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
             tui_resize();
         }
 
-        if (ch >= '1' && ch <= '6') {
+        if (ch >= '1' && ch <= '0' + TAB_COUNT) {
             tab_system_activate(&tabs, ch - '1');
         } else if (ch == '\t') {
             tab_system_next(&tabs);

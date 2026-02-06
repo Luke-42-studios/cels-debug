@@ -1,27 +1,20 @@
 #include "tab_system.h"
 #include "tabs/tab_overview.h"
-#include "tabs/tab_entities.h"
-#include "tabs/tab_components.h"
+#include "tabs/tab_ecs.h"
 #include "tabs/tab_placeholder.h"
 
-/* Tab definitions (static, const) -- Overview is real, rest are placeholder */
+/* Tab definitions (static, const) */
 static const tab_def_t tab_defs[TAB_COUNT] = {
-    { "Overview",     ENDPOINT_STATS_WORLD,
+    { "Overview",     ENDPOINT_STATS_WORLD | ENDPOINT_QUERY,
       tab_overview_init, tab_overview_fini,
       tab_overview_draw, tab_overview_input },
-    { "Entities",     ENDPOINT_QUERY | ENDPOINT_ENTITY,
-      tab_entities_init, tab_entities_fini,
-      tab_entities_draw, tab_entities_input },
-    { "Components",   ENDPOINT_COMPONENTS | ENDPOINT_QUERY,
-      tab_components_init, tab_components_fini,
-      tab_components_draw, tab_components_input },
-    { "Systems",      ENDPOINT_STATS_PIPELINE,
+    { "ECS",          ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_COMPONENTS,
+      tab_ecs_init, tab_ecs_fini,
+      tab_ecs_draw, tab_ecs_input },
+    { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },
     { "State",        ENDPOINT_NONE,
-      tab_placeholder_init, tab_placeholder_fini,
-      tab_placeholder_draw, tab_placeholder_input },
-    { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },
 };

@@ -115,10 +115,9 @@ void tui_fini(void) {
 }
 
 void tui_render(const tab_system_t *tabs, const app_state_t *state) {
-    /* 1. Clear all windows */
+    /* 1. Clear shared windows (NOT win_content -- tabs manage their own) */
     werase(win_header);
     werase(win_tabbar);
-    werase(win_content);
     werase(win_footer);
 
     /* 2. Header: "cels-debug | <status>" */
@@ -170,7 +169,7 @@ void tui_render(const tab_system_t *tabs, const app_state_t *state) {
     tab_system_draw(tabs, win_content, state);
 
     /* 5. Footer: help text + transient message */
-    mvwprintw(win_footer, 0, 1, "1-6:tabs  TAB:next  q:quit");
+    mvwprintw(win_footer, 0, 1, "1-4:tabs  jk:nav  Enter:expand  f:anon  q:quit");
 
     if (state->footer_message && state->footer_message_expire > 0) {
         int msg_len = (int)strlen(state->footer_message);
@@ -182,10 +181,12 @@ void tui_render(const tab_system_t *tabs, const app_state_t *state) {
         }
     }
 
-    /* 6. Batch refresh (no flicker) */
+    /* 6. Batch refresh (no flicker).
+     * Note: win_content is NOT refreshed here -- tabs that use split_panel
+     * create their own windows and call wnoutrefresh themselves. Tabs that
+     * draw into win_content (overview, placeholder) refresh it in their draw. */
     wnoutrefresh(win_header);
     wnoutrefresh(win_tabbar);
-    wnoutrefresh(win_content);
     wnoutrefresh(win_footer);
     doupdate();
 }
