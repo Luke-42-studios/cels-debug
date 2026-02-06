@@ -21,6 +21,31 @@ typedef struct ecs_state {
     bool panel_created;              /* Whether split_panel windows exist */
 } ecs_state_t;
 
+/* Canonical Flecs pipeline phase execution order.
+ * Keep in sync with phase_color_pair() in tree_view.c. */
+static const char *PHASE_ORDER[] = {
+    "OnStart", "OnLoad", "PostLoad", "PreUpdate", "OnUpdate",
+    "OnValidate", "PostUpdate", "PreStore", "OnStore", "PostFrame",
+};
+static const int PHASE_ORDER_COUNT = 10;
+
+/* Phase name to color pair. Duplicated from tree_view.c for inspector use.
+ * Keep in sync with tree_view.c phase_color_pair(). */
+static int phase_color_pair(const char *phase) {
+    if (!phase) return CP_PHASE_CUSTOM;
+    if (strcmp(phase, "OnLoad") == 0)      return CP_PHASE_ONLOAD;
+    if (strcmp(phase, "PostLoad") == 0)    return CP_PHASE_POSTLOAD;
+    if (strcmp(phase, "PreUpdate") == 0)   return CP_PHASE_PREUPDATE;
+    if (strcmp(phase, "OnUpdate") == 0)    return CP_PHASE_ONUPDATE;
+    if (strcmp(phase, "OnValidate") == 0)  return CP_PHASE_ONVALIDATE;
+    if (strcmp(phase, "PostUpdate") == 0)  return CP_PHASE_POSTUPDATE;
+    if (strcmp(phase, "PreStore") == 0)    return CP_PHASE_PRESTORE;
+    if (strcmp(phase, "OnStore") == 0)     return CP_PHASE_ONSTORE;
+    if (strcmp(phase, "PostFrame") == 0)   return CP_PHASE_POSTFRAME;
+    if (strcmp(phase, "OnStart") == 0)     return CP_PHASE_ONLOAD;
+    return CP_PHASE_CUSTOM;
+}
+
 /* --- Entity classification (CELS-C sections) --- */
 
 /* Check if an entity has a specific tag (substring match on tag name) */
@@ -134,6 +159,87 @@ static void annotate_component_entities(entity_list_t *list,
                              reg->components[r].entity_count);
                 }
                 node->class_detail = strdup(buf);
+                break;
+            }
+        }
+    }
+}
+
+/* --- Enrichment: merge pipeline stats into system entity nodes --- */
+
+/* Enrich system entity nodes with data from pipeline stats.
+ * Matches by leaf name (fast, sufficient for small apps).
+ * Also builds the phase list for tree_view phase sub-headers. */
+static void enrich_systems_with_pipeline(entity_list_t *list,
+                                          system_registry_t *reg,
+                                          tree_view_t *tree) {
+    if (!list || !reg || reg->count == 0) {
+        tree_view_set_phases(tree, NULL, NULL, 0);
+        return;
+    }
+
+    /* Build ordered phase list from system entities (using entity tags) */
+    char *found_phases[32];
+    int found_counts[32];
+    int found_count = 0;
+
+    for (int i = 0; i < list->root_count; i++) {
+        entity_node_t *node = list->roots[i];
+        if (node->entity_class != ENTITY_CLASS_SYSTEM) continue;
+        if (!node->class_detail) continue;
+
+        bool exists = false;
+        for (int p = 0; p < found_count; p++) {
+            if (strcmp(found_phases[p], node->class_detail) == 0) {
+                found_counts[p]++;
+                exists = true;
+                break;
+            }
+        }
+        if (!exists && found_count < 32) {
+            found_phases[found_count] = node->class_detail;
+            found_counts[found_count] = 1;
+            found_count++;
+        }
+    }
+
+    /* Sort phases by canonical execution order (insertion sort, max 32) */
+    for (int i = 1; i < found_count; i++) {
+        char *phase = found_phases[i];
+        int count = found_counts[i];
+        int order_i = PHASE_ORDER_COUNT;
+        for (int k = 0; k < PHASE_ORDER_COUNT; k++) {
+            if (strcmp(phase, PHASE_ORDER[k]) == 0) { order_i = k; break; }
+        }
+        int j = i - 1;
+        while (j >= 0) {
+            int order_j = PHASE_ORDER_COUNT;
+            for (int k = 0; k < PHASE_ORDER_COUNT; k++) {
+                if (strcmp(found_phases[j], PHASE_ORDER[k]) == 0) { order_j = k; break; }
+            }
+            if (order_j > order_i) {
+                found_phases[j + 1] = found_phases[j];
+                found_counts[j + 1] = found_counts[j];
+                j--;
+            } else break;
+        }
+        found_phases[j + 1] = phase;
+        found_counts[j + 1] = count;
+    }
+
+    tree_view_set_phases(tree, found_phases, found_counts, found_count);
+
+    /* Enrich each system entity with pipeline stats (match by leaf name) */
+    for (int i = 0; i < list->root_count; i++) {
+        entity_node_t *node = list->roots[i];
+        if (node->entity_class != ENTITY_CLASS_SYSTEM) continue;
+        if (!node->name) continue;
+
+        for (int s = 0; s < reg->count; s++) {
+            if (reg->systems[s].name &&
+                strcmp(reg->systems[s].name, node->name) == 0) {
+                node->system_match_count = reg->systems[s].matched_entity_count;
+                node->disabled = reg->systems[s].disabled;
                 break;
             }
         }
@@ -323,6 +429,9 @@ void tab_ecs_draw(const tab_t *self, WINDOW *win, const void *app_state) {
 
         /* Annotate component entities with registry data (entity count, size) */
         annotate_component_entities(state->entity_list, state->component_registry);
+
+        /* Enrich system entities with pipeline stats + build phase grouping */
+        enrich_systems_with_pipeline(state->entity_list, state->system_registry, &es->tree);
 
         tree_view_rebuild_visible(&es->tree, state->entity_list);
 
