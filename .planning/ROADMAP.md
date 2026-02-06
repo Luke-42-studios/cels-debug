@@ -10,7 +10,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 01: Foundation (Build, Connect, Render)** - CMake project, HTTP pipeline, ncurses shell, basic stats display
+- [x] **Phase 01: Foundation (Build, Connect, Render)** - CMake project, HTTP pipeline, ncurses shell, basic stats display
 - [ ] **Phase 02: Tab System and Overview** - Tab vtable framework, tab bar navigation, Overview dashboard
 - [ ] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
 - [ ] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
@@ -33,9 +33,9 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- CMake build system + CELS_DEBUG option + FlecsStats prerequisite
-- [ ] 01-02-PLAN.md -- HTTP client + JSON parser + data model (data pipeline)
-- [ ] 01-03-PLAN.md -- ncurses TUI shell + main event loop (user-facing TUI)
+- [x] 01-01-PLAN.md -- CMake build system + CELS_DEBUG option + FlecsStats prerequisite
+- [x] 01-02-PLAN.md -- HTTP client + JSON parser + data model (data pipeline)
+- [x] 01-03-PLAN.md -- ncurses TUI shell + main event loop (user-facing TUI)
 
 ### Phase 02: Tab System and Overview
 **Goal**: Users navigate between 6 tabs via keyboard, and the Overview tab shows a live dashboard with entity count, system count, FPS, and frame time
@@ -47,11 +47,11 @@ Plans:
   3. Tab vtable dispatches init/fini/draw/handle_input per tab; each tab declares required_endpoints bitmask
   4. Only the active tab's required endpoints are polled (smart polling)
   5. Overview tab displays dashboard: entity count, system count, FPS, frame time
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- Tab vtable framework, tab bar UI, keyboard navigation, 6 placeholder tabs, smart polling
+- [ ] 02-02-PLAN.md -- Overview tab implementation with live dashboard
 
 ### Phase 03: Entities and Components
 **Goal**: Users can browse all entities, select one, and inspect its component names and values as key-value pairs
@@ -139,8 +139,8 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 04 -> 05
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 01. Foundation | 0/3 | Planned | - |
-| 02. Tab System and Overview | 0/? | Not started | - |
+| 01. Foundation | 3/3 | Complete | 2026-02-05 |
+| 02. Tab System and Overview | 0/2 | Not started | - |
 | 03. Entities and Components | 0/? | Not started | - |
 | 04. Systems and Pipeline | 0/? | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
