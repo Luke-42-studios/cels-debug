@@ -29,6 +29,10 @@ add_executable(cels-debug
     src/data_model.c
     src/tui.c
     src/tab_system.c
+    src/scroll.c
+    src/split_panel.c
+    src/json_render.c
+    src/tree_view.c
     src/tabs/tab_placeholder.c
     src/tabs/tab_overview.c
 )
