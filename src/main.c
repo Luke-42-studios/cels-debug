@@ -2,9 +2,10 @@
  * cels-debug -- Terminal-based ECS inspector for CELS applications
  * Main event loop: input -> poll -> render
  */
-#define _POSIX_C_SOURCE 199309L
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <ncurses.h>
 
@@ -95,8 +96,73 @@ int main(int argc, char *argv[]) {
             http_response_free(&resp);
             last_poll = now;
 
-            /* TODO: Future phases add conditional polling for other endpoints
-             * (ENDPOINT_STATS_PIPELINE, ENDPOINT_QUERY, etc.) here. */
+            /* Poll entity list if active tab needs it */
+            if ((needed & ENDPOINT_QUERY) && app_state.conn_state == CONN_CONNECTED) {
+                static const char *entity_list_url =
+                    "http://localhost:27750/query"
+                    "?expr=!ChildOf(self%7Cup%2Cflecs)%2C!Module(self%7Cup)"
+                    "&entity_id=true&values=false&table=true&try=true";
+                http_response_t qresp = http_get(curl, entity_list_url);
+                if (qresp.status == 200 && qresp.body.data) {
+                    entity_list_t *new_list =
+                        json_parse_entity_list(qresp.body.data, qresp.body.size);
+                    if (new_list) {
+                        entity_list_free(app_state.entity_list);
+                        app_state.entity_list = new_list;
+                    }
+                }
+                http_response_free(&qresp);
+            }
+
+            /* Poll selected entity detail if an entity is selected */
+            if ((needed & ENDPOINT_ENTITY) && app_state.selected_entity_path &&
+                app_state.conn_state == CONN_CONNECTED) {
+                char entity_url[512];
+                snprintf(entity_url, sizeof(entity_url),
+                    "http://localhost:27750/entity/%s?entity_id=true&try=true",
+                    app_state.selected_entity_path);
+                http_response_t eresp = http_get(curl, entity_url);
+                if (eresp.status == 200 && eresp.body.data) {
+                    entity_detail_t *new_detail =
+                        json_parse_entity_detail(eresp.body.data, eresp.body.size);
+                    if (new_detail) {
+                        entity_detail_free(app_state.entity_detail);
+                        app_state.entity_detail = new_detail;
+                    }
+                } else if (eresp.status == 404 || eresp.status == -1) {
+                    /* Entity was deleted -- clear detail and notify */
+                    entity_detail_free(app_state.entity_detail);
+                    app_state.entity_detail = NULL;
+                    /* Set footer notification */
+                    free(app_state.footer_message);
+                    app_state.footer_message = strdup("Selected entity removed");
+                    app_state.footer_message_expire = now + 3000; /* 3 seconds */
+                    free(app_state.selected_entity_path);
+                    app_state.selected_entity_path = NULL;
+                }
+                http_response_free(&eresp);
+            }
+
+            /* Poll component registry if active tab needs it */
+            if ((needed & ENDPOINT_COMPONENTS) && app_state.conn_state == CONN_CONNECTED) {
+                http_response_t cresp = http_get(curl,
+                    "http://localhost:27750/components?try=true");
+                if (cresp.status == 200 && cresp.body.data) {
+                    component_registry_t *new_reg =
+                        json_parse_component_registry(cresp.body.data, cresp.body.size);
+                    if (new_reg) {
+                        component_registry_free(app_state.component_registry);
+                        app_state.component_registry = new_reg;
+                    }
+                }
+                http_response_free(&cresp);
+            }
+
+            /* Expire footer message */
+            if (app_state.footer_message && now >= app_state.footer_message_expire) {
+                free(app_state.footer_message);
+                app_state.footer_message = NULL;
+            }
         }
 
         /* Step 3: Render */
@@ -106,6 +172,11 @@ int main(int argc, char *argv[]) {
     /* Cleanup -- reverse of init order */
     tab_system_fini(&tabs);
     world_snapshot_free(app_state.snapshot);
+    entity_list_free(app_state.entity_list);
+    entity_detail_free(app_state.entity_detail);
+    component_registry_free(app_state.component_registry);
+    free(app_state.selected_entity_path);
+    free(app_state.footer_message);
     http_client_fini(curl);
     tui_fini();
 

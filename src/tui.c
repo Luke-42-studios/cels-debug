@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 /* Windows -- 4-window layout: header, tab bar, content, footer */
@@ -168,8 +169,18 @@ void tui_render(const tab_system_t *tabs, const app_state_t *state) {
     /* 4. Content: dispatch to active tab's draw function */
     tab_system_draw(tabs, win_content, state);
 
-    /* 5. Footer: help text */
+    /* 5. Footer: help text + transient message */
     mvwprintw(win_footer, 0, 1, "1-6:tabs  TAB:next  q:quit");
+
+    if (state->footer_message && state->footer_message_expire > 0) {
+        int msg_len = (int)strlen(state->footer_message);
+        int msg_col = COLS - msg_len - 2;
+        if (msg_col > 0) {
+            wattron(win_footer, COLOR_PAIR(CP_RECONNECTING));
+            mvwprintw(win_footer, 0, msg_col, "%s", state->footer_message);
+            wattroff(win_footer, COLOR_PAIR(CP_RECONNECTING));
+        }
+    }
 
     /* 6. Batch refresh (no flicker) */
     wnoutrefresh(win_header);

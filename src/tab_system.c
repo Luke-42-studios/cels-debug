@@ -7,7 +7,7 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Overview",     ENDPOINT_STATS_WORLD,
       tab_overview_init, tab_overview_fini,
       tab_overview_draw, tab_overview_input },
-    { "Entities",     ENDPOINT_QUERY,
+    { "Entities",     ENDPOINT_QUERY | ENDPOINT_ENTITY,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },
     { "Components",   ENDPOINT_COMPONENTS,

@@ -26,8 +26,15 @@
 
 /* Aggregated application state passed to tabs via void* */
 typedef struct app_state {
-    world_snapshot_t   *snapshot;
-    connection_state_t  conn_state;
+    world_snapshot_t      *snapshot;
+    connection_state_t     conn_state;
+    /* Phase 03: entity and component data */
+    entity_list_t         *entity_list;       /* from /query */
+    entity_detail_t       *entity_detail;     /* from /entity/<path> */
+    component_registry_t  *component_registry; /* from /components */
+    char                  *selected_entity_path; /* slash-separated path of selected entity, or NULL */
+    char                  *footer_message;    /* transient message (e.g., "Entity X removed") */
+    int64_t                footer_message_expire; /* timestamp when message should clear */
 } app_state_t;
 
 /* Initialize ncurses, signal handlers, atexit, color pairs, windows. */
