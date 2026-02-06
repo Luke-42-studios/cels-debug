@@ -18,6 +18,16 @@ typedef struct world_snapshot {
 world_snapshot_t *world_snapshot_create(void);
 void world_snapshot_free(world_snapshot_t *snap);
 
+// Entity classification — sections spell CELS-C, mirroring the paradigm
+typedef enum {
+    ENTITY_CLASS_COMPOSITION,  // C: scene structure (AppUI, MainMenu, Button trees)
+    ENTITY_CLASS_ENTITY,       // E: entities showing module/system relationships
+    ENTITY_CLASS_LIFECYCLE,    // L: lifecycle controllers (MainMenuLifecycle, etc.)
+    ENTITY_CLASS_SYSTEM,       // S: systems, observers, provider-generated systems
+    ENTITY_CLASS_COMPONENT,    // C: component type definitions (Text, ClickArea, etc.)
+    ENTITY_CLASS_COUNT
+} entity_class_t;
+
 // Entity tree node (from /query response)
 // Each node represents one entity with its parent-child relationships.
 // Children array uses dynamic capacity (doubled on grow).
@@ -40,6 +50,9 @@ typedef struct entity_node {
     bool expanded;          // UI collapse state (default true for root nodes)
     bool is_anonymous;      // no name, only numeric ID
     int depth;              // nesting level for indentation
+
+    entity_class_t entity_class;  // section classification
+    char *class_detail;           // display label: "OnLoad", "Observer", etc.
 } entity_node_t;
 
 // Flat ownership of all entity nodes from one poll cycle
@@ -77,6 +90,23 @@ typedef struct component_registry {
     int count;
 } component_registry_t;
 
+// Single system info (parsed from /stats/pipeline + entity tags)
+typedef struct system_info {
+    char *name;              // leaf name (e.g., "MovementSystem")
+    char *full_path;         // dot-separated path from pipeline stats
+    char *phase;             // phase name (e.g., "OnUpdate") -- filled by tab_ecs classify
+    bool disabled;           // from pipeline stats
+    int matched_entity_count; // latest gauge value
+    int matched_table_count;  // latest gauge value
+    double time_spent_ms;    // latest gauge value, converted to ms
+} system_info_t;
+
+// All systems from one /stats/pipeline poll
+typedef struct system_registry {
+    system_info_t *systems;
+    int count;
+} system_registry_t;
+
 // Entity node lifecycle
 entity_node_t *entity_node_create(void);
 void entity_node_free(entity_node_t *node);
@@ -93,5 +123,9 @@ void entity_detail_free(entity_detail_t *detail);
 // Component registry lifecycle
 component_registry_t *component_registry_create(void);
 void component_registry_free(component_registry_t *reg);
+
+// System registry lifecycle
+system_registry_t *system_registry_create(void);
+void system_registry_free(system_registry_t *reg);
 
 #endif // CELS_DEBUG_DATA_MODEL_H

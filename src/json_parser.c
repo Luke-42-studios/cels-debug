@@ -339,6 +339,105 @@ entity_detail_t *json_parse_entity_detail(const char *json, size_t len) {
     return detail;
 }
 
+/* --- Pipeline stats parser --- */
+
+// Extract the latest gauge value from a pipeline stats metric object.
+// Pipeline metrics have the same structure as world stats: { "avg": [...] }
+static double extract_pipeline_gauge(yyjson_val *obj, const char *field) {
+    yyjson_val *metric = yyjson_obj_get(obj, field);
+    if (!metric) return 0.0;
+    yyjson_val *avg = yyjson_obj_get(metric, "avg");
+    if (!avg || !yyjson_is_arr(avg)) return 0.0;
+    size_t count = yyjson_arr_size(avg);
+    if (count == 0) return 0.0;
+    yyjson_val *last = yyjson_arr_get(avg, count - 1);
+    return (last && yyjson_is_num(last)) ? yyjson_get_num(last) : 0.0;
+}
+
+system_registry_t *json_parse_pipeline_stats(const char *json, size_t len) {
+    if (!json || len == 0) return NULL;
+
+    yyjson_doc *doc = yyjson_read(json, len, 0);
+    if (!doc) return NULL;
+
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    if (!root || !yyjson_is_arr(root)) {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    // First pass: count system entries (those with "name", NOT "system_count")
+    size_t idx, max;
+    yyjson_val *entry;
+    int sys_count = 0;
+
+    yyjson_arr_foreach(root, idx, max, entry) {
+        if (yyjson_obj_get(entry, "name") && !yyjson_obj_get(entry, "system_count")) {
+            sys_count++;
+        }
+    }
+
+    system_registry_t *reg = system_registry_create();
+    if (!reg) {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    if (sys_count == 0) {
+        yyjson_doc_free(doc);
+        return reg;
+    }
+
+    reg->systems = calloc((size_t)sys_count, sizeof(system_info_t));
+    if (!reg->systems) {
+        yyjson_doc_free(doc);
+        free(reg);
+        return NULL;
+    }
+
+    // Second pass: extract system info
+    int si = 0;
+    yyjson_arr_foreach(root, idx, max, entry) {
+        yyjson_val *name_val = yyjson_obj_get(entry, "name");
+        if (!name_val || yyjson_obj_get(entry, "system_count")) {
+            continue;  // skip sync points
+        }
+
+        const char *name_str = yyjson_get_str(name_val);
+        if (!name_str) continue;
+
+        // full_path = dot-separated name from pipeline stats
+        reg->systems[si].full_path = strdup(name_str);
+
+        // leaf name = everything after last dot
+        const char *last_dot = strrchr(name_str, '.');
+        reg->systems[si].name = strdup(last_dot ? last_dot + 1 : name_str);
+
+        // disabled flag
+        yyjson_val *disabled_val = yyjson_obj_get(entry, "disabled");
+        reg->systems[si].disabled =
+            (disabled_val && yyjson_is_bool(disabled_val))
+                ? yyjson_get_bool(disabled_val) : false;
+
+        // gauge metrics
+        reg->systems[si].matched_entity_count =
+            (int)extract_pipeline_gauge(entry, "matched_entity_count");
+        reg->systems[si].matched_table_count =
+            (int)extract_pipeline_gauge(entry, "matched_table_count");
+        reg->systems[si].time_spent_ms =
+            extract_pipeline_gauge(entry, "time_spent") * 1000.0;
+
+        // phase: NULL here -- filled by tab_ecs enrichment in Plan 02
+        reg->systems[si].phase = NULL;
+
+        si++;
+    }
+
+    reg->count = si;
+    yyjson_doc_free(doc);
+    return reg;
+}
+
 /* --- Component registry parser --- */
 
 component_registry_t *json_parse_component_registry(const char *json, size_t len) {

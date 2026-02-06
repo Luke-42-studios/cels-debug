@@ -40,6 +40,7 @@ void entity_node_free(entity_node_t *node) {
     }
     free(node->tags);
     free(node->children);  /* NOT recursive -- entity_list_free handles nodes */
+    free(node->class_detail);
     free(node);
 }
 
@@ -103,5 +104,22 @@ void component_registry_free(component_registry_t *reg) {
         free(reg->components[i].name);
     }
     free(reg->components);
+    free(reg);
+}
+
+/* --- System registry --- */
+
+system_registry_t *system_registry_create(void) {
+    return calloc(1, sizeof(system_registry_t));
+}
+
+void system_registry_free(system_registry_t *reg) {
+    if (!reg) return;
+    for (int i = 0; i < reg->count; i++) {
+        free(reg->systems[i].name);
+        free(reg->systems[i].full_path);
+        free(reg->systems[i].phase);
+    }
+    free(reg->systems);
     free(reg);
 }
