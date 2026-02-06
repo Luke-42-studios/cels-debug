@@ -5,26 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 03 in progress (Entities and Components) -- Plan 01 complete, Plans 02-04 remaining
+**Current focus:** Phase 03 in progress (Entities and Components) -- Plans 01-02 complete, Plans 03-04 remaining
 
 ## Current Position
 
 Phase: 03 of 05 (Entities and Components)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 03-01-PLAN.md (Entity/component data pipeline)
+Last activity: 2026-02-06 -- Completed 03-02-PLAN.md (UI utility modules)
 
-Progress: [██████....] 55%
+Progress: [██████....] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
 - Phase 02 total: ~4 minutes
 - Phase 03 Plan 01: ~4 minutes
+- Phase 03 Plan 02: ~5 minutes
 
 **By Phase:**
 
@@ -32,7 +33,7 @@ Progress: [██████....] 55%
 |-------|-------|--------|
 | 01-foundation | 3/3 | Complete |
 | 02-tab-system-and-overview | 2/2 | Complete |
-| 03-entities-and-components | 1/4 | In progress |
+| 03-entities-and-components | 2/4 | In progress |
 
 ## Accumulated Context
 
@@ -63,6 +64,7 @@ Recent decisions affecting current work:
 - [03-01]: O(n^2) parent lookup in entity list parser (acceptable for <5K entities)
 - [03-01]: yyjson_doc ownership in entity_detail_t for zero-copy component value access
 - [03-01]: 404 handling clears selected_entity_path and shows footer notification
+- [03-02]: prev_selected_id field in tree_view_t for cursor preservation across entity_list rebuilds
 
 ### Pending Todos
 
@@ -75,9 +77,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-01-PLAN.md (data pipeline for Phase 03)
+Stopped at: Completed 03-02-PLAN.md (UI utility modules for Phase 03)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03 Plan 01 complete)*
+*Updated: 2026-02-06 (Phase 03 Plan 02 complete)*
