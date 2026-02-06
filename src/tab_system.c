@@ -1,6 +1,7 @@
 #include "tab_system.h"
 #include "tabs/tab_overview.h"
 #include "tabs/tab_entities.h"
+#include "tabs/tab_components.h"
 #include "tabs/tab_placeholder.h"
 
 /* Tab definitions (static, const) -- Overview is real, rest are placeholder */
@@ -11,9 +12,9 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Entities",     ENDPOINT_QUERY | ENDPOINT_ENTITY,
       tab_entities_init, tab_entities_fini,
       tab_entities_draw, tab_entities_input },
-    { "Components",   ENDPOINT_COMPONENTS,
-      tab_placeholder_init, tab_placeholder_fini,
-      tab_placeholder_draw, tab_placeholder_input },
+    { "Components",   ENDPOINT_COMPONENTS | ENDPOINT_QUERY,
+      tab_components_init, tab_components_fini,
+      tab_components_draw, tab_components_input },
     { "Systems",      ENDPOINT_STATS_PIPELINE,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },
