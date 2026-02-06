@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 03 in progress (Entities and Components) -- Plans 01-03 complete, Plan 04 remaining
+**Current focus:** Phase 03 complete (Entities and Components) -- Phase 04 next (Systems and Pipeline)
 
 ## Current Position
 
-Phase: 03 of 05 (Entities and Components)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 03-03-PLAN.md (Entities tab)
+Phase: 03 of 05 (Entities and Components) -- COMPLETE
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 -- Completed 03-04-PLAN.md (Components tab)
 
-Progress: [████████..] 80%
+Progress: [█████████.] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -27,6 +27,8 @@ Progress: [████████..] 80%
 - Phase 03 Plan 01: ~4 minutes
 - Phase 03 Plan 02: ~5 minutes
 - Phase 03 Plan 03: ~2 minutes
+- Phase 03 Plan 04: ~2 minutes
+- Phase 03 total: ~13 minutes
 
 **By Phase:**
 
@@ -34,7 +36,7 @@ Progress: [████████..] 80%
 |-------|-------|--------|
 | 01-foundation | 3/3 | Complete |
 | 02-tab-system-and-overview | 2/2 | Complete |
-| 03-entities-and-components | 3/4 | In progress |
+| 03-entities-and-components | 4/4 | Complete |
 
 ## Accumulated Context
 
@@ -66,6 +68,8 @@ Recent decisions affecting current work:
 - [03-01]: yyjson_doc ownership in entity_detail_t for zero-copy component value access
 - [03-01]: 404 handling clears selected_entity_path and shows footer notification
 - [03-02]: prev_selected_id field in tree_view_t for cursor preservation across entity_list rebuilds
+- [03-04]: Sort component list alphabetically in draw (not parser) via qsort
+- [03-04]: Entity filtering fresh each draw call, no caching needed for <5K entities
 
 ### Pending Todos
 
@@ -78,9 +82,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-03-PLAN.md (Entities tab with split panel, tree, and inspector)
+Stopped at: Completed 03-04-PLAN.md (Components tab -- Phase 03 complete)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03 Plan 03 complete)*
+*Updated: 2026-02-06 (Phase 03 complete -- all 4 plans executed)*
