@@ -64,11 +64,13 @@ Plans:
   4. Component values render correctly for nested objects, arrays, and null values
   5. Components tab lists all registered component types from the component registry
   6. Entity list handles large counts without freezing (virtual scrolling data structures in place)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md -- Data pipeline: entity/component data model, JSON parsers, main loop polling
+- [ ] 03-02-PLAN.md -- Reusable UI modules: scroll, split panel, JSON renderer, tree view
+- [ ] 03-03-PLAN.md -- Entities tab: interactive tree view + component inspector
+- [ ] 03-04-PLAN.md -- Components tab: component registry list + entity drill-down
 
 ### Phase 04: Systems and Pipeline
 **Goal**: Users can see all registered systems grouped by execution phase with enabled/disabled status
@@ -141,10 +143,10 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 04 -> 05
 |-------|----------------|--------|-----------|
 | 01. Foundation | 3/3 | Complete | 2026-02-05 |
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
-| 03. Entities and Components | 0/? | Not started | - |
+| 03. Entities and Components | 0/4 | Not started | - |
 | 04. Systems and Pipeline | 0/? | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 02 complete: 2/2 plans, verified 5/5)*
+*Updated: 2026-02-06 (Phase 03 planned: 4 plans in 3 waves)*
