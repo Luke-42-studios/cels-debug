@@ -106,14 +106,15 @@ Current state: Phase 03 built entity/component tabs as separate views. User test
   2. Systems are grouped by Flecs execution phase (OnLoad, OnUpdate, OnStore, etc.)
   3. Each system shows name, color-coded phase tag, enabled/disabled status, and match count
   4. Pipeline visualization shows phase execution ordering with timing data
-  5. System detail inspector shows metadata and matched entity list
+  5. System detail inspector shows metadata and approximate matched entity list
   6. Cross-navigation from matched entities to Entities section
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [ ] 04-01-PLAN.md -- Data pipeline: system data model, pipeline stats parser, polling, phase colors
-- [ ] 04-02-PLAN.md -- Tree view phase grouping, system enrichment, pipeline viz + summary inspector
-- [ ] 04-03-PLAN.md -- System detail inspector + cross-navigation
+- [ ] 04-02-PLAN.md -- Tree view phase sub-headers, data_model.h system fields, phase rendering
+- [ ] 04-03-PLAN.md -- System enrichment from pipeline stats, pipeline viz + summary inspector
+- [ ] 04-04-PLAN.md -- System detail inspector + cross-navigation
 
 ### Phase 05: State, Performance, and Polish
 **Goal**: CELS-specific State and Performance tabs complete the inspector, with polished auto-reconnect and configurable refresh
@@ -174,9 +175,9 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
-| 04. Systems and Pipeline | 0/3 | Not started | - |
+| 04. Systems and Pipeline | 0/4 | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 planned: 3 plans in 3 waves)*
+*Updated: 2026-02-06 (Phase 04 revised: 4 plans in 4 waves)*
