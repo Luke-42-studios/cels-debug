@@ -35,6 +35,7 @@ add_executable(cels-debug
     src/tree_view.c
     src/tabs/tab_placeholder.c
     src/tabs/tab_overview.c
+    src/tabs/tab_entities.c
 )
 
 set_target_properties(cels-debug PROPERTIES
