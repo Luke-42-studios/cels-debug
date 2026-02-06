@@ -10,6 +10,7 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* Per-tab private state */
 typedef struct ecs_state {
@@ -357,6 +358,295 @@ static int cursor_to_group_index(const entity_detail_t *detail,
     return -1;
 }
 
+/* --- Helper: find system_info_t by name in system_registry --- */
+
+static system_info_t *find_system_info(const app_state_t *state,
+                                        const char *name) {
+    if (!state->system_registry || !name) return NULL;
+    for (int i = 0; i < state->system_registry->count; i++) {
+        if (state->system_registry->systems[i].name &&
+            strcmp(state->system_registry->systems[i].name, name) == 0) {
+            return &state->system_registry->systems[i];
+        }
+    }
+    return NULL;
+}
+
+/* --- Helper: find entities with overlapping components (approximation) --- */
+
+/* Find entities that share components with this system's access pattern.
+ * This is an APPROXIMATION -- the Flecs REST API does not expose the exact
+ * query expression, so we match entities that have at least one non-flecs
+ * component from the system's component list. Not all returned entities
+ * are necessarily matched by the system's actual query.
+ * Returns array of entity_node_t pointers. Caller frees the array (not nodes). */
+static entity_node_t **build_system_matches(const entity_detail_t *sys_detail,
+                                             const entity_list_t *elist,
+                                             int *out_count) {
+    *out_count = 0;
+    if (!sys_detail || !elist || !sys_detail->components) return NULL;
+
+    /* Collect system's non-internal component names */
+    int comp_count = 0;
+    const char *comp_names[64];
+    if (yyjson_is_obj(sys_detail->components)) {
+        size_t ci, cmax;
+        yyjson_val *ckey, *cval;
+        yyjson_obj_foreach(sys_detail->components, ci, cmax, ckey, cval) {
+            if (comp_count < 64) {
+                comp_names[comp_count++] = yyjson_get_str(ckey);
+            }
+        }
+    }
+    if (comp_count == 0) return NULL;
+
+    /* Filter out system-internal components */
+    const char *query_comps[64];
+    int query_count = 0;
+    for (int i = 0; i < comp_count; i++) {
+        if (!comp_names[i]) continue;
+        if (strncmp(comp_names[i], "flecs.", 6) == 0) continue;
+        if (strcmp(comp_names[i], "Component") == 0) continue;
+        query_comps[query_count++] = comp_names[i];
+    }
+    if (query_count == 0) return NULL;
+
+    /* Find entities with at least one overlapping component */
+    entity_node_t **matches = malloc((size_t)elist->count * sizeof(entity_node_t *));
+    if (!matches) return NULL;
+    int match_count = 0;
+
+    for (int i = 0; i < elist->count; i++) {
+        entity_node_t *node = elist->nodes[i];
+        if (node->entity_class == ENTITY_CLASS_SYSTEM) continue;
+        if (node->entity_class == ENTITY_CLASS_COMPONENT) continue;
+
+        bool has_match = false;
+        for (int q = 0; q < query_count && !has_match; q++) {
+            for (int c = 0; c < node->component_count; c++) {
+                if (node->component_names[c] &&
+                    strcmp(node->component_names[c], query_comps[q]) == 0) {
+                    has_match = true;
+                    break;
+                }
+            }
+        }
+        if (has_match) {
+            matches[match_count++] = node;
+        }
+    }
+
+    *out_count = match_count;
+    return matches;
+}
+
+/* --- Inspector: system detail (system entity selected) --- */
+
+static void draw_system_detail(WINDOW *rwin, int rh, int rw,
+                                entity_node_t *sel,
+                                const app_state_t *state,
+                                ecs_state_t *es) {
+    int row = 1;
+
+    /* Title: system name */
+    wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    mvwprintw(rwin, row, 1, "%.*s", rw, sel->name ? sel->name : "(unnamed)");
+    wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+    row++;
+
+    /* Separator */
+    wattron(rwin, A_DIM);
+    wmove(rwin, row, 1);
+    for (int x = 0; x < rw; x++) waddch(rwin, ACS_HLINE);
+    wattroff(rwin, A_DIM);
+    row++;
+
+    /* Metadata */
+    system_info_t *sinfo = find_system_info(state, sel->name);
+
+    /* Phase */
+    row++;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 2, "Phase");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    if (sel->class_detail) {
+        int cp = phase_color_pair(sel->class_detail);
+        wattron(rwin, COLOR_PAIR(cp) | A_BOLD);
+        mvwprintw(rwin, row, 16, "%s", sel->class_detail);
+        wattroff(rwin, COLOR_PAIR(cp) | A_BOLD);
+    } else {
+        wattron(rwin, A_DIM);
+        mvwprintw(rwin, row, 16, "Unknown");
+        wattroff(rwin, A_DIM);
+    }
+
+    /* Status */
+    row++;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 2, "Status");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    if (sel->disabled) {
+        wattron(rwin, COLOR_PAIR(CP_DISCONNECTED));
+        mvwprintw(rwin, row, 16, "Disabled");
+        wattroff(rwin, COLOR_PAIR(CP_DISCONNECTED));
+    } else {
+        wattron(rwin, COLOR_PAIR(CP_CONNECTED));
+        mvwprintw(rwin, row, 16, "Enabled");
+        wattroff(rwin, COLOR_PAIR(CP_CONNECTED));
+    }
+
+    /* Match count */
+    row++;
+    wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+    mvwprintw(rwin, row, 2, "Matched");
+    wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+    wattron(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+    mvwprintw(rwin, row, 16, "%d entities", sel->system_match_count);
+    wattroff(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+
+    /* Timing */
+    if (sinfo && sinfo->time_spent_ms > 0.0) {
+        row++;
+        wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+        mvwprintw(rwin, row, 2, "Time");
+        wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+        wattron(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+        mvwprintw(rwin, row, 16, "%.2fms", sinfo->time_spent_ms);
+        wattroff(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+    }
+
+    /* Table count */
+    if (sinfo && sinfo->matched_table_count > 0) {
+        row++;
+        wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+        mvwprintw(rwin, row, 2, "Tables");
+        wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+        wattron(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+        mvwprintw(rwin, row, 16, "%d", sinfo->matched_table_count);
+        wattroff(rwin, COLOR_PAIR(CP_JSON_NUMBER));
+    }
+
+    /* Full path */
+    if (sinfo && sinfo->full_path) {
+        row++;
+        wattron(rwin, COLOR_PAIR(CP_JSON_KEY));
+        mvwprintw(rwin, row, 2, "Path");
+        wattroff(rwin, COLOR_PAIR(CP_JSON_KEY));
+        wattron(rwin, A_DIM);
+        mvwprintw(rwin, row, 16, "%.*s", rw - 16, sinfo->full_path);
+        wattroff(rwin, A_DIM);
+    }
+
+    /* Component access list from entity detail */
+    if (state->entity_detail && sel->full_path &&
+        strcmp(state->entity_detail->path, sel->full_path) == 0) {
+        if (state->entity_detail->components &&
+            yyjson_is_obj(state->entity_detail->components)) {
+            row += 2;
+            wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+            mvwprintw(rwin, row, 1, "Component Access");
+            wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+            row++;
+
+            size_t ci, cmax;
+            yyjson_val *ckey, *cval;
+            yyjson_obj_foreach(state->entity_detail->components, ci, cmax, ckey, cval) {
+                if (row >= rh) break;
+                wattron(rwin, COLOR_PAIR(CP_JSON_STRING));
+                mvwprintw(rwin, row, 3, "%.*s", rw - 4, yyjson_get_str(ckey));
+                wattroff(rwin, COLOR_PAIR(CP_JSON_STRING));
+                row++;
+            }
+        }
+    }
+
+    /* Approximate matched entities section (scrollable) */
+    row += 1;
+    int match_header_row = row;
+    if (match_header_row < rh) {
+        wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+        mvwprintw(rwin, match_header_row, 1, "Matched Entities");
+        wattroff(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
+
+        /* Note: this is a component overlap approximation */
+        wattron(rwin, A_DIM);
+        mvwprintw(rwin, match_header_row, 19, "(approx)");
+        wattroff(rwin, A_DIM);
+
+        /* Build approximate match list from entity detail component access */
+        int match_count = 0;
+        entity_node_t **matches = NULL;
+        if (state->entity_detail && sel->full_path &&
+            strcmp(state->entity_detail->path, sel->full_path) == 0) {
+            matches = build_system_matches(state->entity_detail,
+                                            state->entity_list, &match_count);
+        }
+
+        int avail_rows = rh - (match_header_row + 1);
+        if (avail_rows < 1) avail_rows = 1;
+
+        es->inspector_scroll.total_items = match_count;
+        es->inspector_scroll.visible_rows = avail_rows;
+        scroll_ensure_visible(&es->inspector_scroll);
+
+        if (match_count > 0 && matches) {
+            for (int r = 0; r < avail_rows; r++) {
+                int idx = es->inspector_scroll.scroll_offset + r;
+                if (idx >= match_count) break;
+
+                int disp_row = match_header_row + 1 + r;
+                entity_node_t *ent = matches[idx];
+                bool is_cursor = (idx == es->inspector_scroll.cursor &&
+                                  es->panel.focus == 1);
+
+                if (is_cursor) wattron(rwin, A_REVERSE);
+
+                wmove(rwin, disp_row, 1);
+                for (int c = 0; c < rw; c++) waddch(rwin, ' ');
+
+                const char *dname = ent->name;
+                char id_buf[32];
+                if (!dname || dname[0] == '\0') {
+                    snprintf(id_buf, sizeof(id_buf), "#%lu",
+                             (unsigned long)ent->id);
+                    dname = id_buf;
+                }
+
+                wattron(rwin, COLOR_PAIR(CP_ENTITY_NAME));
+                mvwprintw(rwin, disp_row, 2, "%.*s", rw / 2, dname);
+                wattroff(rwin, COLOR_PAIR(CP_ENTITY_NAME));
+
+                if (ent->full_path) {
+                    int name_end = getcurx(rwin);
+                    int avail = rw - (name_end - 1);
+                    if (avail > 2) {
+                        wattron(rwin, A_DIM);
+                        mvwprintw(rwin, disp_row, name_end + 1, "%.*s",
+                                  avail - 2, ent->full_path);
+                        wattroff(rwin, A_DIM);
+                    }
+                }
+
+                if (is_cursor) wattroff(rwin, A_REVERSE);
+            }
+        } else {
+            int disp_row = match_header_row + 1;
+            if (disp_row < rh) {
+                wattron(rwin, A_DIM);
+                if (!state->entity_detail || !sel->full_path ||
+                    strcmp(state->entity_detail->path, sel->full_path) != 0) {
+                    mvwprintw(rwin, disp_row, 3, "Loading...");
+                } else {
+                    mvwprintw(rwin, disp_row, 3, "No matches (task system)");
+                }
+                wattroff(rwin, A_DIM);
+            }
+        }
+
+        free(matches);
+    }
+}
+
 /* --- Helper: update selected_entity_path from tree cursor --- */
 
 static void sync_selected_path(ecs_state_t *es, app_state_t *state) {
@@ -672,6 +962,9 @@ void tab_ecs_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             /* --- Branch: Systems section header selected -> Summary stats --- */
             draw_systems_summary(rwin, rh, rw, state);
         }
+    } else if (sel && sel->entity_class == ENTITY_CLASS_SYSTEM) {
+        /* --- Branch: System entity selected -> System detail + matched entities --- */
+        draw_system_detail(rwin, rh, rw, sel, state, es);
     } else if (sel && sel->entity_class == ENTITY_CLASS_COMPONENT) {
         /* --- Branch A: Component type selected -- show entities with this component --- */
         const char *comp_name = sel->name;
