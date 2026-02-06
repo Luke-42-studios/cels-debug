@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 04 of 05 (Systems and Pipeline)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 04-01-PLAN.md (pipeline stats data pipeline)
+Last activity: 2026-02-06 -- Completed 04-02-PLAN.md (tree view phase sub-headers)
 
-Progress: [████████..] 79%
+Progress: [█████████.] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -30,6 +30,7 @@ Progress: [████████..] 79%
 - Phase 03 Plan 04: ~2 minutes
 - Phase 03 total: ~13 minutes
 - Phase 04 Plan 01: ~4 minutes
+- Phase 04 Plan 02: ~3 minutes
 
 **By Phase:**
 
@@ -39,7 +40,7 @@ Progress: [████████..] 79%
 | 02-tab-system-and-overview | 2/2 | Complete |
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
-| 04-systems-and-pipeline | 1/4 | In progress |
+| 04-systems-and-pipeline | 2/4 | In progress |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [04-01]: extract_pipeline_gauge is separate static helper (pipeline metrics nested in array entries, not root)
 - [04-01]: Phase field in system_info_t left NULL by parser -- enriched by tab_ecs classification in Plan 02
 - [04-01]: Pipeline stats polling follows atomic swap pattern (same as component registry)
+- [04-02]: Phase sub-header phase_group field: -1 for section/entity rows, 0..N-1 for phases, N for Custom
+- [04-02]: Custom group (unknown phases) not collapsible -- keeps uncategorized systems visible
+- [04-02]: phase_color_pair() in tree_view.c is canonical location for phase-to-color mapping
 
 ### Roadmap Evolution
 
@@ -96,9 +100,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-01-PLAN.md (pipeline stats data pipeline)
+Stopped at: Completed 04-02-PLAN.md (tree view phase sub-headers)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 Plan 01 complete -- pipeline stats data pipeline)*
+*Updated: 2026-02-06 (Phase 04 Plan 02 complete -- tree view phase sub-headers)*
