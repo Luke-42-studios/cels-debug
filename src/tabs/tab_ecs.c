@@ -661,6 +661,62 @@ static void sync_selected_path(ecs_state_t *es, app_state_t *state) {
     }
 }
 
+/* --- Helper: cross-navigate from inspector to entity in tree --- */
+
+static bool cross_navigate_to_entity(ecs_state_t *es, app_state_t *state,
+                                      const char *entity_path) {
+    if (!entity_path || !state->entity_list) return false;
+
+    /* 1. Ensure Entities section is expanded */
+    es->tree.section_collapsed[ENTITY_CLASS_ENTITY] = false;
+
+    /* 2. Rebuild visible rows to include Entities section items */
+    tree_view_rebuild_visible(&es->tree, state->entity_list);
+
+    /* 3. Find the target entity in the display list */
+    for (int i = 0; i < es->tree.row_count; i++) {
+        entity_node_t *node = es->tree.rows[i].node;
+        if (node && node->full_path &&
+            strcmp(node->full_path, entity_path) == 0) {
+            es->tree.scroll.cursor = i;
+            scroll_ensure_visible(&es->tree.scroll);
+
+            /* 4. Update selected path for detail polling */
+            free(state->selected_entity_path);
+            state->selected_entity_path = strdup(entity_path);
+
+            /* 5. Switch focus to left panel */
+            es->panel.focus = 0;
+            return true;
+        }
+    }
+
+    /* Try expanding Compositions section too */
+    es->tree.section_collapsed[ENTITY_CLASS_COMPOSITION] = false;
+    tree_view_rebuild_visible(&es->tree, state->entity_list);
+
+    for (int i = 0; i < es->tree.row_count; i++) {
+        entity_node_t *node = es->tree.rows[i].node;
+        if (node && node->full_path &&
+            strcmp(node->full_path, entity_path) == 0) {
+            es->tree.scroll.cursor = i;
+            scroll_ensure_visible(&es->tree.scroll);
+            free(state->selected_entity_path);
+            state->selected_entity_path = strdup(entity_path);
+            es->panel.focus = 0;
+            return true;
+        }
+    }
+
+    /* Not found -- show footer message */
+    free(state->footer_message);
+    state->footer_message = strdup("Entity not found");
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    state->footer_message_expire = ts.tv_sec * 1000 + ts.tv_nsec / 1000000 + 3000;
+    return false;
+}
+
 /* --- Inspector: pipeline visualization (phase sub-header selected) --- */
 
 static void draw_pipeline_viz(WINDOW *rwin, int rh, int rw,
@@ -1281,7 +1337,52 @@ bool tab_ecs_input(tab_t *self, int ch, void *app_state) {
     if (es->panel.focus == 1) {
         entity_node_t *sel = tree_view_selected(&es->tree);
 
-        if (sel && sel->entity_class == ENTITY_CLASS_COMPONENT) {
+        if (sel && sel->entity_class == ENTITY_CLASS_SYSTEM) {
+            /* System detail mode: scroll matched entities + cross-navigate */
+            switch (ch) {
+            case KEY_UP:
+            case 'k':
+                scroll_move(&es->inspector_scroll, -1);
+                return true;
+            case KEY_DOWN:
+            case 'j':
+                scroll_move(&es->inspector_scroll, +1);
+                return true;
+            case KEY_PPAGE:
+                scroll_page(&es->inspector_scroll, -1);
+                return true;
+            case KEY_NPAGE:
+                scroll_page(&es->inspector_scroll, +1);
+                return true;
+            case 'g':
+                scroll_to_top(&es->inspector_scroll);
+                return true;
+            case 'G':
+                scroll_to_bottom(&es->inspector_scroll);
+                return true;
+            case KEY_ENTER:
+            case '\n':
+            case '\r': {
+                /* Cross-navigate to approximate matched entity */
+                int match_count = 0;
+                entity_node_t **matches = NULL;
+                if (state->entity_detail && sel->full_path &&
+                    strcmp(state->entity_detail->path, sel->full_path) == 0) {
+                    matches = build_system_matches(state->entity_detail,
+                                                    state->entity_list, &match_count);
+                }
+                if (matches && es->inspector_scroll.cursor >= 0 &&
+                    es->inspector_scroll.cursor < match_count) {
+                    entity_node_t *target = matches[es->inspector_scroll.cursor];
+                    if (target->full_path) {
+                        cross_navigate_to_entity(es, state, target->full_path);
+                    }
+                }
+                free(matches);
+                return true;
+            }
+            }
+        } else if (sel && sel->entity_class == ENTITY_CLASS_COMPONENT) {
             /* Component mode: scroll through entities-with-component list */
             switch (ch) {
             case KEY_UP:
