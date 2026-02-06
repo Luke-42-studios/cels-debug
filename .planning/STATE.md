@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 05 of 05 (State, Performance, and Polish)
-Plan: 1 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 05-01-PLAN.md (tab restructure)
+Last activity: 2026-02-06 -- Completed 05-03-PLAN.md (Performance tab waterfall)
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -35,6 +35,7 @@ Progress: [████████░░] 83%
 - Phase 04 Plan 04: ~2 minutes
 - Phase 04 total: ~11 minutes
 - Phase 05 Plan 01: ~6 minutes
+- Phase 05 Plan 03: ~2 minutes
 
 **By Phase:**
 
@@ -45,7 +46,7 @@ Progress: [████████░░] 83%
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
 | 04-systems-and-pipeline | 4/4 | Complete |
-| 05-state-performance-and-polish | 1/4 | In progress |
+| 05-state-performance-and-polish | 3/4 | In progress |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [05-01]: hide_systems_from_tree() reclassifies ENTITY_CLASS_SYSTEM as ENTITY_CLASS_ENTITY in CELS tab
 - [05-01]: pending_tab field in app_state_t for deferred cross-tab navigation
 - [05-01]: Endpoint bitmasks refined: CELS drops PIPELINE, Systems gets PIPELINE
+- [05-03]: Self-contained phase detection in Performance tab via entity tags (independent of other tabs' classify step)
+- [05-03]: ENDPOINT_QUERY added to Performance tab for entity tag access
+- [05-03]: tab_placeholder.c removed from build (no remaining tab_defs references)
 
 ### Roadmap Evolution
 
@@ -118,9 +122,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-01-PLAN.md -- tab restructure done, ready for 05-02
+Stopped at: Completed 05-03-PLAN.md -- Performance tab waterfall done, ready for 05-02 or 05-04
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Plan 05-01 complete: tab restructure [Overview, CELS, Systems, Performance])*
+*Updated: 2026-02-06 (Plan 05-03 complete: Performance tab with waterfall visualization)*
