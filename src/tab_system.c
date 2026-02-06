@@ -1,12 +1,12 @@
 #include "tab_system.h"
+#include "tabs/tab_overview.h"
 #include "tabs/tab_placeholder.h"
 
-/* Tab definitions (static, const) -- all 6 tabs use placeholder for now.
- * Overview tab will be replaced in Plan 02-02 with tab_overview. */
+/* Tab definitions (static, const) -- Overview is real, rest are placeholder */
 static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Overview",     ENDPOINT_STATS_WORLD,
-      tab_placeholder_init, tab_placeholder_fini,
-      tab_placeholder_draw, tab_placeholder_input },
+      tab_overview_init, tab_overview_fini,
+      tab_overview_draw, tab_overview_input },
     { "Entities",     ENDPOINT_QUERY,
       tab_placeholder_init, tab_placeholder_fini,
       tab_placeholder_draw, tab_placeholder_input },

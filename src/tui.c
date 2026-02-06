@@ -6,14 +6,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-/* Color pair IDs */
-#define CP_CONNECTED    1
-#define CP_DISCONNECTED 2
-#define CP_RECONNECTING 3
-#define CP_LABEL        4
-#define CP_TAB_ACTIVE   5
-#define CP_TAB_INACTIVE 6
-
 /* Windows -- 4-window layout: header, tab bar, content, footer */
 static WINDOW *win_header  = NULL;
 static WINDOW *win_tabbar  = NULL;

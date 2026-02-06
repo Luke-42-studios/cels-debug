@@ -30,6 +30,7 @@ add_executable(cels-debug
     src/tui.c
     src/tab_system.c
     src/tabs/tab_placeholder.c
+    src/tabs/tab_overview.c
 )
 
 set_target_properties(cels-debug PROPERTIES
@@ -39,6 +40,7 @@ set_target_properties(cels-debug PROPERTIES
 )
 
 target_include_directories(cels-debug PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CURSES_INCLUDE_DIRS}
 )
 

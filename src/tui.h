@@ -5,6 +5,14 @@
 #include "http_client.h"  /* for connection_state_t */
 #include "tab_system.h"
 
+/* Color pair IDs (shared with tab implementations) */
+#define CP_CONNECTED    1
+#define CP_DISCONNECTED 2
+#define CP_RECONNECTING 3
+#define CP_LABEL        4
+#define CP_TAB_ACTIVE   5
+#define CP_TAB_INACTIVE 6
+
 /* Aggregated application state passed to tabs via void* */
 typedef struct app_state {
     world_snapshot_t   *snapshot;
