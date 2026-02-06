@@ -13,6 +13,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - [x] **Phase 01: Foundation (Build, Connect, Render)** - CMake project, HTTP pipeline, ncurses shell, basic stats display
 - [x] **Phase 02: Tab System and Overview** - Tab vtable framework, tab bar navigation, Overview dashboard
 - [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
+- [ ] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
 - [ ] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
 - [ ] **Phase 05: State, Performance, and Polish** - State tab, performance metrics, auto-reconnect, navigation polish
 
@@ -71,6 +72,30 @@ Plans:
 - [x] 03-02-PLAN.md -- Reusable UI modules: scroll, split panel, JSON renderer, tree view
 - [x] 03-03-PLAN.md -- Entities tab: interactive tree view + component inspector
 - [x] 03-04-PLAN.md -- Components tab: component registry list + entity drill-down
+
+### Phase 03.1: Redesign Navigation — ECS Tabs (INSERTED)
+**Goal**: Restructure the debugger's tab and navigation architecture so the top-level tabs read as ECS concepts (Overview, ECS, Performance, State), with the ECS tab containing the CELS-C tree view (Compositions, Entities, Lifecycles, Systems, Components) as collapsible sub-sections
+**Depends on**: Phase 03
+**Success Criteria** (what must be TRUE):
+  1. Top-level tabs are: Overview, ECS, Performance, State (4 tabs, not 5+)
+  2. ECS tab contains the CELS-C tree view with collapsible section headers (C-E-L-S-C)
+  3. Components section within CELS-C is fully functional (component type list, entity drill-down)
+  4. Section headers are navigable — cursor lands on them, Enter toggles collapse, all start collapsed
+  5. First letter of each section name is bold (C-E-L-S-C reads vertically as the paradigm)
+  6. Arrow keys / j/k navigation works correctly through headers and entity items
+  7. Inspector panel shows entity detail when an entity is selected from any section
+**Plans**: 1 plan
+
+Plans:
+- [ ] 03.1-01-PLAN.md -- Create tab_ecs (merged entity+component), update wiring to 4-tab layout
+
+**Details:**
+Current state: Phase 03 built entity/component tabs as separate views. User testing revealed the need to:
+- Merge component browsing into the entity tree (not a separate tab)
+- Group entities by CELS paradigm sections (Compositions, Entities, Lifecycles, Systems, Components)
+- Reduce top-level tabs to match ECS concepts: Overview (stats), ECS (the CELS-C browser), Performance, State
+- Make section headers navigable and collapsible (start closed)
+- Bold first letter of each section spelling CELS-C vertically
 
 ### Phase 04: Systems and Pipeline
 **Goal**: Users can see all registered systems grouped by execution phase with enabled/disabled status
@@ -137,16 +162,17 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 01 -> 02 -> 03 -> 04 -> 05
+Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 01. Foundation | 3/3 | Complete | 2026-02-05 |
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
+| 03.1 Redesign Navigation — ECS Tabs | 0/1 | Not started | - |
 | 04. Systems and Pipeline | 0/? | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03 complete: 4/4 plans, verified 6/6 must-haves)*
+*Updated: 2026-02-06 (Phase 03.1 planned: 1 plan in 1 wave)*
