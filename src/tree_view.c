@@ -11,13 +11,14 @@
 #define TREE_LAST    "\xe2\x94\x94"   /* U+2514 last child corner */
 #define TREE_HORIZ   "\xe2\x94\x80"   /* U+2500 horizontal line */
 
-/* Section names matching CELS-C paradigm */
+/* Section names matching CELS-C paradigm (indices 0-4 spell C-E-L-S-C) */
 static const char *section_names[ENTITY_CLASS_COUNT] = {
     [ENTITY_CLASS_COMPOSITION] = "Compositions",
     [ENTITY_CLASS_ENTITY]      = "Entities",
     [ENTITY_CLASS_LIFECYCLE]   = "Lifecycles",
-    [ENTITY_CLASS_SYSTEM]      = "Systems",
+    [ENTITY_CLASS_STATE]       = "State",
     [ENTITY_CLASS_COMPONENT]   = "Components",
+    [ENTITY_CLASS_SYSTEM]      = "Systems",
 };
 
 /* --- Helpers --- */
