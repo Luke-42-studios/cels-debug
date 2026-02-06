@@ -15,7 +15,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
 - [x] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
 - [x] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
-- [ ] **Phase 05: State, Performance, and Polish** - State tab, performance metrics, auto-reconnect, navigation polish
+- [ ] **Phase 05: State, Performance, and Polish** - Tab restructure (CELS + Systems), State section, Performance waterfall, navigation polish, auto-reconnect
 
 ## Phase Details
 
@@ -117,20 +117,22 @@ Plans:
 - [x] 04-04-PLAN.md -- System detail inspector + cross-navigation
 
 ### Phase 05: State, Performance, and Polish
-**Goal**: CELS-specific State and Performance tabs complete the inspector, with polished auto-reconnect and configurable refresh
+**Goal**: Restructure tabs to [Overview, CELS, Systems, Performance], complete the CELS-C paradigm with State section, add Performance waterfall, and polish navigation/reconnect/refresh
 **Depends on**: Phase 04
 **Requirements**: F1 (refinement), F5 (refinement), F6 (complete), F7 (complete), F8 (complete)
 **Success Criteria** (what must be TRUE):
-  1. State tab displays CELS State() component values
-  2. Performance tab shows frame timing details and per-system metrics from /stats/pipeline
-  3. Auto-refresh interval is configurable (default 500ms), polling only active tab endpoints
-  4. Graceful disconnect with automatic reconnect attempts and clear status transitions
-  5. Keyboard navigation is consistent across all tabs: j/k scroll, Enter select, Esc back, q quit
-**Plans**: TBD
+  1. Tab bar shows: Overview, CELS, Systems, Performance (4 tabs)
+  2. CELS tab sections spell C-E-L-S-C: Compositions, Entities, Lifecycles, State, Components
+  3. Performance tab shows per-system waterfall with proportional timing bars
+  4. Auto-reconnect persists Reconnecting status (no premature Disconnected)
+  5. Poll interval configurable via -r flag, Esc back-navigation, context-sensitive footer
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md -- Tab restructure: rename ECS to CELS, extract Systems to own tab
+- [ ] 05-02-PLAN.md -- State section in CELS tab with change highlighting
+- [ ] 05-03-PLAN.md -- Performance tab with waterfall visualization
+- [ ] 05-04-PLAN.md -- Navigation polish, auto-reconnect fix, configurable refresh
 
 ## Traceability
 
@@ -176,8 +178,8 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
 | 04. Systems and Pipeline | 4/4 | Complete | 2026-02-06 |
-| 05. State, Performance, Polish | 0/? | Not started | - |
+| 05. State, Performance, Polish | 0/4 | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 complete: 4/4 plans, goal verified)*
+*Updated: 2026-02-06 (Phase 05 planned: 4 plans in 2 waves)*
