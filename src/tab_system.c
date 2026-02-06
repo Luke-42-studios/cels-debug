@@ -8,7 +8,7 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Overview",     ENDPOINT_STATS_WORLD | ENDPOINT_QUERY,
       tab_overview_init, tab_overview_fini,
       tab_overview_draw, tab_overview_input },
-    { "ECS",          ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_COMPONENTS,
+    { "ECS",          ENDPOINT_QUERY | ENDPOINT_ENTITY | ENDPOINT_COMPONENTS | ENDPOINT_STATS_PIPELINE,
       tab_ecs_init, tab_ecs_fini,
       tab_ecs_draw, tab_ecs_input },
     { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE,

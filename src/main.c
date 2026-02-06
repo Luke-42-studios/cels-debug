@@ -158,6 +158,21 @@ int main(int argc, char *argv[]) {
                 http_response_free(&cresp);
             }
 
+            /* Poll pipeline stats if active tab needs it */
+            if ((needed & ENDPOINT_STATS_PIPELINE) && app_state.conn_state == CONN_CONNECTED) {
+                http_response_t presp = http_get(curl,
+                    "http://localhost:27750/stats/pipeline");
+                if (presp.status == 200 && presp.body.data) {
+                    system_registry_t *new_reg =
+                        json_parse_pipeline_stats(presp.body.data, presp.body.size);
+                    if (new_reg) {
+                        system_registry_free(app_state.system_registry);
+                        app_state.system_registry = new_reg;
+                    }
+                }
+                http_response_free(&presp);
+            }
+
             /* Expire footer message */
             if (app_state.footer_message && now >= app_state.footer_message_expire) {
                 free(app_state.footer_message);
@@ -175,6 +190,7 @@ int main(int argc, char *argv[]) {
     entity_list_free(app_state.entity_list);
     entity_detail_free(app_state.entity_detail);
     component_registry_free(app_state.component_registry);
+    system_registry_free(app_state.system_registry);
     free(app_state.selected_entity_path);
     free(app_state.footer_message);
     http_client_fini(curl);

@@ -24,6 +24,19 @@
 #define CP_PANEL_INACTIVE    14
 #define CP_CURSOR            15
 
+/* Phase 04: system phase color pairs */
+#define CP_PHASE_ONLOAD      16
+#define CP_PHASE_POSTLOAD    17
+#define CP_PHASE_PREUPDATE   18
+#define CP_PHASE_ONUPDATE    19
+#define CP_PHASE_ONVALIDATE  20
+#define CP_PHASE_POSTUPDATE  21
+#define CP_PHASE_PRESTORE    22
+#define CP_PHASE_ONSTORE     23
+#define CP_PHASE_POSTFRAME   24
+#define CP_PHASE_CUSTOM      25
+#define CP_SYSTEM_DISABLED   26
+
 /* Aggregated application state passed to tabs via void* */
 typedef struct app_state {
     world_snapshot_t      *snapshot;
@@ -32,6 +45,7 @@ typedef struct app_state {
     entity_list_t         *entity_list;       /* from /query */
     entity_detail_t       *entity_detail;     /* from /entity/<path> */
     component_registry_t  *component_registry; /* from /components */
+    system_registry_t     *system_registry;     /* from /stats/pipeline */
     char                  *selected_entity_path; /* slash-separated path of selected entity, or NULL */
     char                  *footer_message;    /* transient message (e.g., "Entity X removed") */
     int64_t                footer_message_expire; /* timestamp when message should clear */

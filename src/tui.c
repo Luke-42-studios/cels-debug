@@ -98,6 +98,19 @@ void tui_init(void) {
         init_pair(CP_PANEL_ACTIVE,     COLOR_WHITE,  -1);
         init_pair(CP_PANEL_INACTIVE,   COLOR_WHITE,  -1);
         init_pair(CP_CURSOR,           COLOR_BLACK,  COLOR_WHITE);
+
+        /* Phase 04: system phase color pairs */
+        init_pair(CP_PHASE_ONLOAD,     COLOR_BLUE,    -1);
+        init_pair(CP_PHASE_POSTLOAD,   COLOR_BLUE,    -1);
+        init_pair(CP_PHASE_PREUPDATE,  COLOR_CYAN,    -1);
+        init_pair(CP_PHASE_ONUPDATE,   COLOR_GREEN,   -1);
+        init_pair(CP_PHASE_ONVALIDATE, COLOR_YELLOW,  -1);
+        init_pair(CP_PHASE_POSTUPDATE, COLOR_YELLOW,  -1);
+        init_pair(CP_PHASE_PRESTORE,   COLOR_MAGENTA, -1);
+        init_pair(CP_PHASE_ONSTORE,    COLOR_RED,     -1);
+        init_pair(CP_PHASE_POSTFRAME,  COLOR_WHITE,   -1);
+        init_pair(CP_PHASE_CUSTOM,     COLOR_WHITE,   -1);
+        init_pair(CP_SYSTEM_DISABLED,  COLOR_WHITE,   -1);
     }
 
     /* Use terminal default background on stdscr */
