@@ -20,7 +20,19 @@ typedef struct cels_state {
     bool *comp_expanded;             /* Expand/collapse state per component group */
     int comp_expanded_count;         /* Number of component groups allocated */
     bool panel_created;              /* Whether split_panel windows exist */
+
+    /* State entity change highlighting */
+    char *prev_entity_json;          /* serialized previous component values */
+    char *prev_entity_path;          /* which entity the prev_json belongs to */
+    int64_t flash_expire_ms;         /* CLOCK_MONOTONIC ms when flash ends (0 = no flash) */
 } cels_state_t;
+
+/* Helper: get current monotonic time in milliseconds */
+static int64_t now_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
 
 /* --- Entity classification (CELS-C sections) --- */
 
@@ -62,6 +74,16 @@ static bool name_is_lifecycle(entity_node_t *node) {
     return strcmp(node->name + nlen - slen, suffix) == 0;
 }
 
+/* Check if name ends with "State" (case-sensitive) */
+static bool name_ends_with_state(entity_node_t *node) {
+    if (!node->name) return false;
+    const char *suffix = "State";
+    size_t nlen = strlen(node->name);
+    size_t slen = strlen(suffix);
+    if (nlen < slen) return false;
+    return strcmp(node->name + nlen - slen, suffix) == 0;
+}
+
 /* Classify a single node (root-level only -- children inherit) */
 static entity_class_t classify_node(entity_node_t *node) {
     free(node->class_detail);
@@ -80,6 +102,10 @@ static entity_class_t classify_node(entity_node_t *node) {
     /* C: Components -- component type entities */
     if (has_component_component(node)) {
         return ENTITY_CLASS_COMPONENT;
+    }
+    /* S: State -- entities whose name ends with "State" (v0.1 heuristic) */
+    if (name_ends_with_state(node)) {
+        return ENTITY_CLASS_STATE;
     }
     /* L: Lifecycles -- marker entities whose name ends with "Lifecycle" */
     if (name_is_lifecycle(node)) {
@@ -358,6 +384,8 @@ void tab_cels_fini(tab_t *self) {
     }
     tree_view_fini(&cs->tree);
     free(cs->comp_expanded);
+    free(cs->prev_entity_json);
+    free(cs->prev_entity_path);
     free(cs);
     self->state = NULL;
 }
@@ -535,6 +563,41 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
         if (strcmp(state->entity_detail->path, sel->full_path) == 0) {
             const entity_detail_t *detail = state->entity_detail;
 
+            /* --- Change highlighting for State entities --- */
+            bool flash_active = false;
+            if (sel->entity_class == ENTITY_CLASS_STATE && detail->components) {
+                /* Serialize current component values for comparison */
+                char *cur_json = yyjson_val_write(detail->components, 0, NULL);
+
+                if (cs->prev_entity_path && cur_json &&
+                    strcmp(cs->prev_entity_path, sel->full_path) == 0) {
+                    /* Same entity -- compare values */
+                    if (cs->prev_entity_json &&
+                        strcmp(cs->prev_entity_json, cur_json) != 0) {
+                        /* Values changed: start 2-second flash */
+                        cs->flash_expire_ms = now_ms() + 2000;
+                    }
+                } else {
+                    /* Different entity selected -- reset flash state */
+                    cs->flash_expire_ms = 0;
+                }
+
+                /* Update stored previous values */
+                free(cs->prev_entity_json);
+                cs->prev_entity_json = cur_json; /* takes ownership */
+                free(cs->prev_entity_path);
+                cs->prev_entity_path = strdup(sel->full_path);
+
+                /* Check if flash is still active */
+                if (cs->flash_expire_ms > 0 && now_ms() < cs->flash_expire_ms) {
+                    flash_active = true;
+                }
+            }
+
+            if (flash_active) {
+                wattron(rwin, A_BOLD | COLOR_PAIR(CP_RECONNECTING));
+            }
+
             int group_count = count_groups(detail);
             ensure_comp_expanded(cs, group_count);
 
@@ -657,6 +720,10 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             }
 
             (void)logical_row;
+
+            if (flash_active) {
+                wattroff(rwin, A_BOLD | COLOR_PAIR(CP_RECONNECTING));
+            }
         } else {
             const char *msg = "Loading...";
             int msg_len = (int)strlen(msg);
