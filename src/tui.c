@@ -181,8 +181,28 @@ void tui_render(const tab_system_t *tabs, const app_state_t *state) {
     /* 4. Content: dispatch to active tab's draw function */
     tab_system_draw(tabs, win_content, state);
 
-    /* 5. Footer: help text + transient message */
-    mvwprintw(win_footer, 0, 1, "1-4:tabs  jk:nav  Enter:expand  f:anon  q:quit");
+    /* 5. Footer: context-sensitive hints + transient message */
+    {
+        const char *hints;
+        switch (tabs->active) {
+        case 0:  /* Overview */
+            hints = "1-4:tabs  q:quit";
+            break;
+        case 1:  /* CELS */
+            hints = "1-4:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
+            break;
+        case 2:  /* Systems */
+            hints = "1-4:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
+            break;
+        case 3:  /* Performance */
+            hints = "1-4:tabs  jk:scroll  q:quit";
+            break;
+        default:
+            hints = "1-4:tabs  q:quit";
+            break;
+        }
+        mvwprintw(win_footer, 0, 1, "%s", hints);
+    }
 
     if (state->footer_message && state->footer_message_expire > 0) {
         int msg_len = (int)strlen(state->footer_message);

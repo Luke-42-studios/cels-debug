@@ -3,6 +3,7 @@
  * Main event loop: input -> poll -> render
  */
 #define _POSIX_C_SOURCE 200809L
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,26 @@
 
 static volatile int g_running = 1;
 
+/* Navigation back-stack helpers */
+static void nav_push(nav_stack_t *stack, int tab, uint64_t entity_id) {
+    if (stack->top < NAV_STACK_MAX - 1) {
+        stack->top++;
+        stack->entries[stack->top].tab_index = tab;
+        stack->entries[stack->top].entity_id = entity_id;
+    }
+}
+
+static bool nav_pop(nav_stack_t *stack, nav_entry_t *out) {
+    if (stack->top < 0) return false;
+    *out = stack->entries[stack->top];
+    stack->top--;
+    return true;
+}
+
+static void nav_clear(nav_stack_t *stack) {
+    stack->top = -1;
+}
+
 static int64_t now_ms(void) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -26,8 +47,15 @@ static int64_t now_ms(void) {
 }
 
 int main(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
+    /* Parse command-line flags */
+    int poll_interval = POLL_INTERVAL_MS;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
+            poll_interval = atoi(argv[++i]);
+            if (poll_interval < 100) poll_interval = 100;    /* minimum 100ms */
+            if (poll_interval > 5000) poll_interval = 5000;  /* maximum 5s */
+        }
+    }
 
     const char *url = "http://localhost:27750/stats/world";
 
@@ -49,6 +77,8 @@ int main(int argc, char *argv[]) {
     /* State */
     app_state_t app_state = {0};  /* snapshot=NULL, conn_state=CONN_DISCONNECTED */
     app_state.pending_tab = -1;
+    app_state.nav_stack.top = -1;
+    app_state.poll_interval_ms = poll_interval;
     int64_t last_poll = 0;
 
     /* Main loop */
@@ -65,9 +95,33 @@ int main(int argc, char *argv[]) {
             tui_resize();
         }
 
-        if (ch >= '1' && ch <= '0' + TAB_COUNT) {
+        /* Esc key: pop nav stack or pass to active tab */
+        if (ch == 27) {
+            nav_entry_t entry;
+            if (nav_pop(&app_state.nav_stack, &entry)) {
+                tab_system_activate(&tabs, entry.tab_index);
+                /* Restore entity selection if possible */
+                if (entry.entity_id != 0 && app_state.entity_list) {
+                    for (int i = 0; i < app_state.entity_list->count; i++) {
+                        entity_node_t *n = app_state.entity_list->nodes[i];
+                        if (n->id == entry.entity_id && n->full_path) {
+                            free(app_state.selected_entity_path);
+                            app_state.selected_entity_path = strdup(n->full_path);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                /* No nav history -- pass to tab */
+                tab_system_handle_input(&tabs, ch, &app_state);
+            }
+        } else if (ch >= '1' && ch <= '0' + TAB_COUNT) {
+            /* Direct tab switch -- clear nav stack (new context) */
+            nav_clear(&app_state.nav_stack);
             tab_system_activate(&tabs, ch - '1');
         } else if (ch == '\t') {
+            /* Tab key -- clear nav stack (new context) */
+            nav_clear(&app_state.nav_stack);
             tab_system_next(&tabs);
         } else if (ch != ERR) {
             tab_system_handle_input(&tabs, ch, &app_state);
@@ -75,6 +129,8 @@ int main(int argc, char *argv[]) {
 
         /* Cross-tab navigation (e.g., Systems tab -> CELS tab) */
         if (app_state.pending_tab >= 0) {
+            /* Push current tab onto nav stack before switching */
+            nav_push(&app_state.nav_stack, tabs.active, 0);
             tab_system_activate(&tabs, app_state.pending_tab);
             app_state.pending_tab = -1;
         }
@@ -82,7 +138,7 @@ int main(int argc, char *argv[]) {
         /* Step 2: Poll on timer -- always poll /stats/world for connection health.
          * Only update snapshot data if the active tab needs ENDPOINT_STATS_WORLD. */
         int64_t now = now_ms();
-        if (now - last_poll >= POLL_INTERVAL_MS) {
+        if (now - last_poll >= app_state.poll_interval_ms) {
             uint32_t needed = tab_system_required_endpoints(&tabs);
 
             http_response_t resp = http_get(curl, url);

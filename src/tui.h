@@ -37,6 +37,19 @@
 #define CP_PHASE_CUSTOM      25
 #define CP_SYSTEM_DISABLED   26
 
+/* Navigation back-stack for cross-tab jumps (Esc returns to origin) */
+#define NAV_STACK_MAX 8
+
+typedef struct nav_entry {
+    int tab_index;              /* which tab was active */
+    uint64_t entity_id;         /* entity ID for cursor restore (0 = none) */
+} nav_entry_t;
+
+typedef struct nav_stack {
+    nav_entry_t entries[NAV_STACK_MAX];
+    int top;                    /* -1 = empty */
+} nav_stack_t;
+
 /* Aggregated application state passed to tabs via void* */
 typedef struct app_state {
     world_snapshot_t      *snapshot;
@@ -50,6 +63,8 @@ typedef struct app_state {
     char                  *footer_message;    /* transient message (e.g., "Entity X removed") */
     int64_t                footer_message_expire; /* timestamp when message should clear */
     int                    pending_tab;      /* cross-tab navigation: >=0 = switch to tab, -1 = none */
+    nav_stack_t            nav_stack;        /* back-navigation stack for cross-tab jumps */
+    int                    poll_interval_ms; /* configurable refresh interval, default 500 */
 } app_state_t;
 
 /* Initialize ncurses, signal handlers, atexit, color pairs, windows. */
