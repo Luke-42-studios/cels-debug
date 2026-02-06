@@ -15,7 +15,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
 - [x] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
 - [x] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
-- [ ] **Phase 05: State, Performance, and Polish** - Tab restructure (CELS + Systems), State section, Performance waterfall, navigation polish, auto-reconnect
+- [x] **Phase 05: State, Performance, and Polish** - Tab restructure (CELS + Systems), State section, Performance waterfall, navigation polish, auto-reconnect
 
 ## Phase Details
 
@@ -129,10 +129,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Tab restructure: rename ECS to CELS, extract Systems to own tab
-- [ ] 05-02-PLAN.md -- State section in CELS tab with change highlighting
-- [ ] 05-03-PLAN.md -- Performance tab with waterfall visualization
-- [ ] 05-04-PLAN.md -- Navigation polish, auto-reconnect fix, configurable refresh
+- [x] 05-01-PLAN.md -- Tab restructure: rename ECS to CELS, extract Systems to own tab
+- [x] 05-02-PLAN.md -- State section in CELS tab with change highlighting
+- [x] 05-03-PLAN.md -- Performance tab with waterfall visualization
+- [x] 05-04-PLAN.md -- Navigation polish, auto-reconnect fix, configurable refresh
 
 ## Traceability
 
@@ -140,29 +140,29 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| F1: Connection status indicator | Phase 01 (initial), Phase 05 (refinement) | Pending |
+| F1: Connection status indicator | Phase 01 (initial), Phase 05 (refinement) | Complete |
 | F2: Tab navigation (6 tabs) | Phase 02 | Complete |
 | F3: Entity list with component inspection | Phase 03 | Complete |
 | F4: System list | Phase 04 | Complete |
-| F5: Frame timing display | Phase 01 (initial), Phase 05 (refinement) | Pending |
-| F6: Keyboard-driven navigation | Phase 02 (framework), Phase 03 (entity nav), Phase 05 (polish) | Pending |
-| F7: Auto-refresh polling | Phase 01 (basic), Phase 05 (configurable) | Pending |
-| F8: Graceful disconnect handling | Phase 01 (basic), Phase 05 (refinement) | Pending |
+| F5: Frame timing display | Phase 01 (initial), Phase 05 (refinement) | Complete |
+| F6: Keyboard-driven navigation | Phase 02 (framework), Phase 03 (entity nav), Phase 05 (polish) | Complete |
+| F7: Auto-refresh polling | Phase 01 (basic), Phase 05 (configurable) | Complete |
+| F8: Graceful disconnect handling | Phase 01 (basic), Phase 05 (refinement) | Complete |
 
 ### Technical Requirements
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| T1: C99 language | Phase 01 | Pending |
-| T2: CMake 3.21+ build | Phase 01 | Pending |
-| T3: ncursesw 6.5+ | Phase 01 | Pending |
-| T4: libcurl (easy interface) | Phase 01 | Pending |
-| T5: yyjson 0.10+ | Phase 01 | Pending |
-| T6: FlecsStats debug-build only | Phase 01 | Pending |
-| T7: Single-threaded MVC loop | Phase 01 | Pending |
-| T8: Snapshot data model | Phase 01 | Pending |
+| T1: C99 language | Phase 01 | Complete |
+| T2: CMake 3.21+ build | Phase 01 | Complete |
+| T3: ncursesw 6.5+ | Phase 01 | Complete |
+| T4: libcurl (easy interface) | Phase 01 | Complete |
+| T5: yyjson 0.10+ | Phase 01 | Complete |
+| T6: FlecsStats debug-build only | Phase 01 | Complete |
+| T7: Single-threaded MVC loop | Phase 01 | Complete |
+| T8: Snapshot data model | Phase 01 | Complete |
 | T9: Tab vtable pattern | Phase 02 | Complete |
-| T10: Signal handlers | Phase 01 | Pending |
+| T10: Signal handlers | Phase 01 | Complete |
 
 **Coverage: 8/8 feature requirements mapped, 10/10 technical requirements mapped.**
 
@@ -178,8 +178,8 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
 | 04. Systems and Pipeline | 4/4 | Complete | 2026-02-06 |
-| 05. State, Performance, Polish | 0/4 | Not started | - |
+| 05. State, Performance, Polish | 4/4 | Complete | 2026-02-06 |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 05 planned: 4 plans in 2 waves)*
+*Updated: 2026-02-06 (Phase 05 complete: all phases done, v0.1 milestone complete)*
