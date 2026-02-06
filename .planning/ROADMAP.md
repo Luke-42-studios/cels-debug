@@ -14,7 +14,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 - [x] **Phase 02: Tab System and Overview** - Tab vtable framework, tab bar navigation, Overview dashboard
 - [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
 - [x] **Phase 03.1: Redesign Navigation — ECS Tabs** (INSERTED) - Restructure tabs to read ECS (Overview, ECS, Performance, State), CELS-C tree inside ECS tab
-- [ ] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
+- [x] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
 - [ ] **Phase 05: State, Performance, and Polish** - State tab, performance metrics, auto-reconnect, navigation polish
 
 ## Phase Details
@@ -111,10 +111,10 @@ Current state: Phase 03 built entity/component tabs as separate views. User test
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Data pipeline: system data model, pipeline stats parser, polling, phase colors
-- [ ] 04-02-PLAN.md -- Tree view phase sub-headers, data_model.h system fields, phase rendering
-- [ ] 04-03-PLAN.md -- System enrichment from pipeline stats, pipeline viz + summary inspector
-- [ ] 04-04-PLAN.md -- System detail inspector + cross-navigation
+- [x] 04-01-PLAN.md -- Data pipeline: system data model, pipeline stats parser, polling, phase colors
+- [x] 04-02-PLAN.md -- Tree view phase sub-headers, data_model.h system fields, phase rendering
+- [x] 04-03-PLAN.md -- System enrichment from pipeline stats, pipeline viz + summary inspector
+- [x] 04-04-PLAN.md -- System detail inspector + cross-navigation
 
 ### Phase 05: State, Performance, and Polish
 **Goal**: CELS-specific State and Performance tabs complete the inspector, with polished auto-reconnect and configurable refresh
@@ -141,7 +141,7 @@ Plans:
 | F1: Connection status indicator | Phase 01 (initial), Phase 05 (refinement) | Pending |
 | F2: Tab navigation (6 tabs) | Phase 02 | Complete |
 | F3: Entity list with component inspection | Phase 03 | Complete |
-| F4: System list | Phase 04 | Pending |
+| F4: System list | Phase 04 | Complete |
 | F5: Frame timing display | Phase 01 (initial), Phase 05 (refinement) | Pending |
 | F6: Keyboard-driven navigation | Phase 02 (framework), Phase 03 (entity nav), Phase 05 (polish) | Pending |
 | F7: Auto-refresh polling | Phase 01 (basic), Phase 05 (configurable) | Pending |
@@ -175,9 +175,9 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 03.1 -> 04 -> 05
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
 | 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 03.1 Redesign Navigation — ECS Tabs | 1/1 | Complete | 2026-02-06 |
-| 04. Systems and Pipeline | 0/4 | Not started | - |
+| 04. Systems and Pipeline | 4/4 | Complete | 2026-02-06 |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 revised: 4 plans in 4 waves)*
+*Updated: 2026-02-06 (Phase 04 complete: 4/4 plans, goal verified)*
