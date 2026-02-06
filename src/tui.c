@@ -1,5 +1,6 @@
 #include "tui.h"
 #include "tab_system.h"
+#include <locale.h>
 #include <ncurses.h>
 #include <signal.h>
 #include <stdio.h>
@@ -55,6 +56,9 @@ static void destroy_windows(void) {
 /* --- Public API --- */
 
 void tui_init(void) {
+    /* Required for Unicode box drawing characters with ncursesw */
+    setlocale(LC_ALL, "");
+
     /* Signal handlers first -- protect terminal from crashes */
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
@@ -82,6 +86,17 @@ void tui_init(void) {
         init_pair(CP_LABEL,        COLOR_CYAN,   -1);
         init_pair(CP_TAB_ACTIVE,   COLOR_WHITE,  -1);
         init_pair(CP_TAB_INACTIVE, COLOR_WHITE,  -1);
+
+        /* Phase 03: entity/component UI color pairs */
+        init_pair(CP_TREE_LINE,        COLOR_WHITE,  -1);
+        init_pair(CP_ENTITY_NAME,      COLOR_WHITE,  -1);
+        init_pair(CP_COMPONENT_HEADER, COLOR_CYAN,   -1);
+        init_pair(CP_JSON_KEY,         COLOR_CYAN,   -1);
+        init_pair(CP_JSON_STRING,      COLOR_GREEN,  -1);
+        init_pair(CP_JSON_NUMBER,      COLOR_YELLOW, -1);
+        init_pair(CP_PANEL_ACTIVE,     COLOR_WHITE,  -1);
+        init_pair(CP_PANEL_INACTIVE,   COLOR_WHITE,  -1);
+        init_pair(CP_CURSOR,           COLOR_BLACK,  COLOR_WHITE);
     }
 
     /* Use terminal default background on stdscr */

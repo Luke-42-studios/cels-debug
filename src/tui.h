@@ -13,6 +13,17 @@
 #define CP_TAB_ACTIVE   5
 #define CP_TAB_INACTIVE 6
 
+/* Phase 03: entity/component UI color pairs */
+#define CP_TREE_LINE          7
+#define CP_ENTITY_NAME        8
+#define CP_COMPONENT_HEADER   9
+#define CP_JSON_KEY          10
+#define CP_JSON_STRING       11
+#define CP_JSON_NUMBER       12
+#define CP_PANEL_ACTIVE      13
+#define CP_PANEL_INACTIVE    14
+#define CP_CURSOR            15
+
 /* Aggregated application state passed to tabs via void* */
 typedef struct app_state {
     world_snapshot_t   *snapshot;
