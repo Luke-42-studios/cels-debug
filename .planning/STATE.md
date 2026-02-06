@@ -19,7 +19,7 @@ Progress: [█████████░] 89%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -35,6 +35,7 @@ Progress: [█████████░] 89%
 - Phase 04 Plan 04: ~2 minutes
 - Phase 04 total: ~11 minutes
 - Phase 05 Plan 01: ~6 minutes
+- Phase 05 Plan 02: ~2 minutes
 - Phase 05 Plan 03: ~2 minutes
 
 **By Phase:**
@@ -96,6 +97,9 @@ Recent decisions affecting current work:
 - [05-01]: hide_systems_from_tree() reclassifies ENTITY_CLASS_SYSTEM as ENTITY_CLASS_ENTITY in CELS tab
 - [05-01]: pending_tab field in app_state_t for deferred cross-tab navigation
 - [05-01]: Endpoint bitmasks refined: CELS drops PIPELINE, Systems gets PIPELINE
+- [05-02]: ENTITY_CLASS_STATE at position 3, ENTITY_CLASS_SYSTEM moved to position 5 (sections 0-4 spell C-E-L-S-C)
+- [05-02]: name_ends_with_state() heuristic for State entity classification (v0.1 limitation)
+- [05-02]: yyjson_val_write() serialization for change detection, CP_RECONNECTING flash for 2s
 - [05-03]: Self-contained phase detection in Performance tab via entity tags (independent of other tabs' classify step)
 - [05-03]: ENDPOINT_QUERY added to Performance tab for entity tag access
 - [05-03]: tab_placeholder.c removed from build (no remaining tab_defs references)
@@ -109,7 +113,7 @@ Recent decisions affecting current work:
   - Section headers navigable + collapsible, bold first letter spells CELS-C
 - Phase 05 Plan 01: Tabs restructured to [Overview, CELS, Systems, Performance]
   - ECS tab renamed to CELS, Systems section extracted to own tab
-  - CELS tab now shows C-E-L-C (State section added in Plan 02 completes C-E-L-S-C)
+  - CELS tab now shows C-E-L-S-C (Plan 02 added State section to complete the acronym)
 
 ### Pending Todos
 
@@ -122,9 +126,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-03-PLAN.md -- Performance tab waterfall done, ready for 05-02 or 05-04
+Stopped at: Completed 05-02-PLAN.md and 05-03-PLAN.md -- State section + Performance tab done, ready for 05-04
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Plan 05-03 complete: Performance tab with waterfall visualization)*
+*Updated: 2026-02-06 (Plan 05-02 complete: State section in CELS tab with change highlighting)*
