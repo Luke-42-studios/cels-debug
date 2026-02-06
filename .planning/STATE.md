@@ -5,25 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 02 complete, Phase 03 next (Entities and Components)
+**Current focus:** Phase 03 in progress (Entities and Components) -- Plan 01 complete, Plans 02-04 remaining
 
 ## Current Position
 
-Phase: 02 of 05 (Tab System and Overview)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-06 -- Completed 02-02-PLAN.md (Overview tab implementation)
+Phase: 03 of 05 (Entities and Components)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 03-01-PLAN.md (Entity/component data pipeline)
 
-Progress: [█████.....] 50%
+Progress: [██████....] 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
 - Phase 02 total: ~4 minutes
+- Phase 03 Plan 01: ~4 minutes
 
 **By Phase:**
 
@@ -31,6 +32,7 @@ Progress: [█████.....] 50%
 |-------|-------|--------|
 | 01-foundation | 3/3 | Complete |
 | 02-tab-system-and-overview | 2/2 | Complete |
+| 03-entities-and-components | 1/4 | In progress |
 
 ## Accumulated Context
 
@@ -57,6 +59,10 @@ Recent decisions affecting current work:
 - [02-01]: Always poll /stats/world for connection health, only parse if ENDPOINT_STATS_WORLD needed
 - [02-01]: All 6 tabs use placeholder initially; Overview implementation in Plan 02-02
 - [02-02]: CP_* defines moved from tui.c to tui.h (shared color pairs for all tab implementations)
+- [03-01]: _POSIX_C_SOURCE 200809L in json_parser.c for strdup availability in C99
+- [03-01]: O(n^2) parent lookup in entity list parser (acceptable for <5K entities)
+- [03-01]: yyjson_doc ownership in entity_detail_t for zero-copy component value access
+- [03-01]: 404 handling clears selected_entity_path and shows footer notification
 
 ### Pending Todos
 
@@ -69,9 +75,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-02-PLAN.md (Phase 02 complete)
+Stopped at: Completed 03-01-PLAN.md (data pipeline for Phase 03)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 02 complete)*
+*Updated: 2026-02-06 (Phase 03 Plan 01 complete)*
