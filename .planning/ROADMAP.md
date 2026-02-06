@@ -12,7 +12,7 @@ CELS Debug is built foundation-first: prove the end-to-end data pipeline (HTTP G
 
 - [x] **Phase 01: Foundation (Build, Connect, Render)** - CMake project, HTTP pipeline, ncurses shell, basic stats display
 - [x] **Phase 02: Tab System and Overview** - Tab vtable framework, tab bar navigation, Overview dashboard
-- [ ] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
+- [x] **Phase 03: Entities and Components** - Entity list, component inspection, component registry tab
 - [ ] **Phase 04: Systems and Pipeline** - System list, phase grouping, pipeline visualization
 - [ ] **Phase 05: State, Performance, and Polish** - State tab, performance metrics, auto-reconnect, navigation polish
 
@@ -59,7 +59,7 @@ Plans:
 **Requirements**: F3, F6 (partial)
 **Success Criteria** (what must be TRUE):
   1. Entities tab shows a scrollable list of entities fetched from /query endpoint
-  2. User navigates entity list with j/k or arrow keys and selects with Enter
+  2. Cursor selection previews component data instantly; Enter toggles expand/collapse on tree nodes
   3. Selected entity displays all component names and their values as key-value pairs
   4. Component values render correctly for nested objects, arrays, and null values
   5. Components tab lists all registered component types from the component registry
@@ -67,10 +67,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Data pipeline: entity/component data model, JSON parsers, main loop polling
-- [ ] 03-02-PLAN.md -- Reusable UI modules: scroll, split panel, JSON renderer, tree view
-- [ ] 03-03-PLAN.md -- Entities tab: interactive tree view + component inspector
-- [ ] 03-04-PLAN.md -- Components tab: component registry list + entity drill-down
+- [x] 03-01-PLAN.md -- Data pipeline: entity/component data model, JSON parsers, main loop polling
+- [x] 03-02-PLAN.md -- Reusable UI modules: scroll, split panel, JSON renderer, tree view
+- [x] 03-03-PLAN.md -- Entities tab: interactive tree view + component inspector
+- [x] 03-04-PLAN.md -- Components tab: component registry list + entity drill-down
 
 ### Phase 04: Systems and Pipeline
 **Goal**: Users can see all registered systems grouped by execution phase with enabled/disabled status
@@ -110,7 +110,7 @@ Plans:
 |-------------|-------|--------|
 | F1: Connection status indicator | Phase 01 (initial), Phase 05 (refinement) | Pending |
 | F2: Tab navigation (6 tabs) | Phase 02 | Complete |
-| F3: Entity list with component inspection | Phase 03 | Pending |
+| F3: Entity list with component inspection | Phase 03 | Complete |
 | F4: System list | Phase 04 | Pending |
 | F5: Frame timing display | Phase 01 (initial), Phase 05 (refinement) | Pending |
 | F6: Keyboard-driven navigation | Phase 02 (framework), Phase 03 (entity nav), Phase 05 (polish) | Pending |
@@ -143,10 +143,10 @@ Phases execute in numeric order: 01 -> 02 -> 03 -> 04 -> 05
 |-------|----------------|--------|-----------|
 | 01. Foundation | 3/3 | Complete | 2026-02-05 |
 | 02. Tab System and Overview | 2/2 | Complete | 2026-02-06 |
-| 03. Entities and Components | 0/4 | Not started | - |
+| 03. Entities and Components | 4/4 | Complete | 2026-02-06 |
 | 04. Systems and Pipeline | 0/? | Not started | - |
 | 05. State, Performance, Polish | 0/? | Not started | - |
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03 planned: 4 plans in 3 waves)*
+*Updated: 2026-02-06 (Phase 03 complete: 4/4 plans, verified 6/6 must-haves)*
