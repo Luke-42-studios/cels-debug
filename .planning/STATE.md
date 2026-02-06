@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 04 of 05 (Systems and Pipeline)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 04-02-PLAN.md (tree view phase sub-headers)
+Last activity: 2026-02-06 -- Completed 04-03-PLAN.md (system enrichment + inspector branches)
 
-Progress: [█████████.] 86%
+Progress: [█████████.] 93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -31,6 +31,7 @@ Progress: [█████████.] 86%
 - Phase 03 total: ~13 minutes
 - Phase 04 Plan 01: ~4 minutes
 - Phase 04 Plan 02: ~3 minutes
+- Phase 04 Plan 03: ~2 minutes
 
 **By Phase:**
 
@@ -40,7 +41,7 @@ Progress: [█████████.] 86%
 | 02-tab-system-and-overview | 2/2 | Complete |
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
-| 04-systems-and-pipeline | 2/4 | In progress |
+| 04-systems-and-pipeline | 3/4 | In progress |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [04-02]: Phase sub-header phase_group field: -1 for section/entity rows, 0..N-1 for phases, N for Custom
 - [04-02]: Custom group (unknown phases) not collapsible -- keeps uncategorized systems visible
 - [04-02]: phase_color_pair() in tree_view.c is canonical location for phase-to-color mapping
+- [04-03]: PHASE_ORDER and phase_color_pair() duplicated in tab_ecs.c with sync comments (avoids header changes)
+- [04-03]: Inspector dispatch uses cur_row (display_row_t*) to detect headers before entity checks
+- [04-03]: Pipeline viz aggregates per-phase timing by cross-referencing system_registry with entity classification
 
 ### Roadmap Evolution
 
@@ -100,9 +104,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-02-PLAN.md (tree view phase sub-headers)
+Stopped at: Completed 04-03-PLAN.md (system enrichment + inspector branches)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 04 Plan 02 complete -- tree view phase sub-headers)*
+*Updated: 2026-02-06 (Phase 04 Plan 03 complete -- system enrichment + inspector branches)*
