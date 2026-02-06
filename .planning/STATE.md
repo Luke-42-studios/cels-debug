@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Real-time visibility into a running CELS application -- entities, state, systems, and performance -- in a single terminal window.
-**Current focus:** Phase 04 next (Systems and Pipeline)
+**Current focus:** Phase 04 (Systems and Pipeline) -- in progress
 
 ## Current Position
 
-Phase: 03.1 of 05 (Redesign Navigation — ECS Tabs) -- COMPLETE
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-02-06 -- Completed 03.1-01-PLAN.md (ECS tab redesign)
+Phase: 04 of 05 (Systems and Pipeline)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 04-01-PLAN.md (pipeline stats data pipeline)
 
-Progress: [███████...] 70%
+Progress: [████████..] 79%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Phase 01: ~25 minutes total
 - Phase 02 Plan 01: ~2 minutes
 - Phase 02 Plan 02: ~2 minutes
@@ -29,6 +29,7 @@ Progress: [███████...] 70%
 - Phase 03 Plan 03: ~2 minutes
 - Phase 03 Plan 04: ~2 minutes
 - Phase 03 total: ~13 minutes
+- Phase 04 Plan 01: ~4 minutes
 
 **By Phase:**
 
@@ -38,6 +39,7 @@ Progress: [███████...] 70%
 | 02-tab-system-and-overview | 2/2 | Complete |
 | 03-entities-and-components | 4/4 | Complete |
 | 03.1-redesign-navigation-ecs-tabs | 1/1 | Complete |
+| 04-systems-and-pipeline | 1/4 | In progress |
 
 ## Accumulated Context
 
@@ -71,6 +73,9 @@ Recent decisions affecting current work:
 - [03-02]: prev_selected_id field in tree_view_t for cursor preservation across entity_list rebuilds
 - [03-04]: Sort component list alphabetically in draw (not parser) via qsort
 - [03-04]: Entity filtering fresh each draw call, no caching needed for <5K entities
+- [04-01]: extract_pipeline_gauge is separate static helper (pipeline metrics nested in array entries, not root)
+- [04-01]: Phase field in system_info_t left NULL by parser -- enriched by tab_ecs classification in Plan 02
+- [04-01]: Pipeline stats polling follows atomic swap pattern (same as component registry)
 
 ### Roadmap Evolution
 
@@ -91,9 +96,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03.1-01-PLAN.md (ECS tab redesign -- Phase 03.1 complete)
+Stopped at: Completed 04-01-PLAN.md (pipeline stats data pipeline)
 Resume file: None
 
 ---
 *Created: 2026-02-05*
-*Updated: 2026-02-06 (Phase 03.1 complete -- ECS tab redesign verified)*
+*Updated: 2026-02-06 (Phase 04 Plan 01 complete -- pipeline stats data pipeline)*
