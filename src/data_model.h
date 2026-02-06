@@ -53,6 +53,9 @@ typedef struct entity_node {
 
     entity_class_t entity_class;  // section classification
     char *class_detail;           // display label: "OnLoad", "Observer", etc.
+
+    int system_match_count;   // match count from pipeline stats, 0 if not a system
+    bool disabled;            // system disabled from pipeline stats
 } entity_node_t;
 
 // Flat ownership of all entity nodes from one poll cycle
