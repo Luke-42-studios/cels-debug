@@ -64,14 +64,19 @@ static char *extract_pipeline_phase(entity_node_t *node) {
     return NULL;
 }
 
-/* Check if name ends with "Lifecycle" */
+/* Check if entity is a lifecycle controller.
+ * CELS registers lifecycles as "lifecycle_<ptr>" via cels_lifecycle_register_def,
+ * and older code may use names ending with "Lifecycle", "LC", or "Cycle". */
 static bool name_is_lifecycle(entity_node_t *node) {
     if (!node->name) return false;
-    const char *suffix = "Lifecycle";
+    /* Current CELS naming: "lifecycle_0x..." prefix */
+    if (strncmp(node->name, "lifecycle_", 10) == 0) return true;
+    /* Legacy/user naming: suffix checks */
     size_t nlen = strlen(node->name);
-    size_t slen = strlen(suffix);
-    if (nlen < slen) return false;
-    return strcmp(node->name + nlen - slen, suffix) == 0;
+    if (nlen >= 9 && strcmp(node->name + nlen - 9, "Lifecycle") == 0) return true;
+    if (nlen >= 5 && strcmp(node->name + nlen - 5, "Cycle") == 0) return true;
+    if (nlen >= 2 && strcmp(node->name + nlen - 2, "LC") == 0) return true;
+    return false;
 }
 
 /* Check if name ends with "State" (case-sensitive) */
@@ -296,6 +301,10 @@ static void sync_selected_path(cels_state_t *cs, app_state_t *state) {
     entity_node_t *sel = tree_view_selected(&cs->tree);
     free(state->selected_entity_path);
     state->selected_entity_path = sel ? strdup(sel->full_path) : NULL;
+
+    /* Eagerly save selected entity ID so tree_view_rebuild_visible can
+     * restore cursor without reading from potentially freed old rows. */
+    cs->tree.prev_selected_id = sel ? sel->id : 0;
 
     if (state->entity_detail && sel &&
         strcmp(state->entity_detail->path, sel->full_path) != 0) {

@@ -163,14 +163,10 @@ void tree_view_rebuild_visible(tree_view_t *tv, entity_list_t *list) {
         return;
     }
 
-    /* Remember which entity was selected */
-    uint64_t prev_id = 0;
-    if (tv->rows && tv->row_count > 0 &&
-        tv->scroll.cursor >= 0 && tv->scroll.cursor < tv->row_count) {
-        display_row_t *cur = &tv->rows[tv->scroll.cursor];
-        if (cur->node) prev_id = cur->node->id;
-    }
-    tv->prev_selected_id = prev_id;
+    /* Use prev_selected_id saved from last rebuild or cursor move.
+     * Do NOT read from old tv->rows here -- the entity_list those nodes
+     * belonged to may have been freed by the poll cycle (use-after-free). */
+    uint64_t prev_id = tv->prev_selected_id;
 
     free(tv->rows);
 
@@ -284,6 +280,12 @@ void tree_view_rebuild_visible(tree_view_t *tv, entity_list_t *list) {
         if (!found && tv->scroll.cursor >= tv->row_count) {
             tv->scroll.cursor = tv->row_count > 0 ? tv->row_count - 1 : 0;
         }
+    }
+
+    /* Update prev_selected_id from current cursor in NEW rows (safe pointers) */
+    if (tv->scroll.cursor >= 0 && tv->scroll.cursor < tv->row_count &&
+        tv->rows[tv->scroll.cursor].node) {
+        tv->prev_selected_id = tv->rows[tv->scroll.cursor].node->id;
     }
 
     scroll_ensure_visible(&tv->scroll);

@@ -14,6 +14,10 @@ void scroll_ensure_visible(scroll_state_t *s) {
         return;
     }
 
+    /* Clamp cursor to valid range (total_items may have changed) */
+    if (s->cursor >= s->total_items) s->cursor = s->total_items - 1;
+    if (s->cursor < 0) s->cursor = 0;
+
     /* Cursor above visible area -- scroll up */
     if (s->cursor < s->scroll_offset) {
         s->scroll_offset = s->cursor;
