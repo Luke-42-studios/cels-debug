@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
                 app_state.conn_state == CONN_CONNECTED) {
                 char entity_url[512];
                 snprintf(entity_url, sizeof(entity_url),
-                    "http://localhost:27750/entity/%s?entity_id=true&try=true",
+                    "http://localhost:27750/entity/%s?entity_id=true&try=true&doc=true",
                     app_state.selected_entity_path);
                 http_response_t eresp = http_get(curl, entity_url);
                 if (eresp.status == 200 && eresp.body.data) {

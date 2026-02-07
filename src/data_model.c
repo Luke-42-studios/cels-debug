@@ -85,6 +85,7 @@ entity_detail_t *entity_detail_create(void) {
 
 void entity_detail_free(entity_detail_t *detail) {
     if (!detail) return;
+    free(detail->doc_brief);
     free(detail->path);
     if (detail->doc) {
         yyjson_doc_free(detail->doc);

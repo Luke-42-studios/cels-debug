@@ -336,6 +336,18 @@ entity_detail_t *json_parse_entity_detail(const char *json, size_t len) {
     detail->tags       = yyjson_obj_get(root, "tags");
     detail->pairs      = yyjson_obj_get(root, "pairs");
 
+    // Parse doc brief (from ?doc=true)
+    yyjson_val *doc_obj = yyjson_obj_get(root, "doc");
+    if (doc_obj && yyjson_is_obj(doc_obj)) {
+        yyjson_val *brief_val = yyjson_obj_get(doc_obj, "brief");
+        if (brief_val && yyjson_is_str(brief_val)) {
+            const char *brief_str = yyjson_get_str(brief_val);
+            if (brief_str && brief_str[0] != '\0') {
+                detail->doc_brief = strdup(brief_str);
+            }
+        }
+    }
+
     return detail;
 }
 

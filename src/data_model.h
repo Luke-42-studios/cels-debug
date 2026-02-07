@@ -78,6 +78,8 @@ typedef struct entity_detail {
     yyjson_val *components; // pointer into doc: "components" object
     yyjson_val *tags;       // pointer into doc: "tags" array
     yyjson_val *pairs;      // pointer into doc: "pairs" object
+
+    char *doc_brief;        // flecs doc brief text (strdup'd, may be NULL)
 } entity_detail_t;
 
 // Single component type info (from /components response)
