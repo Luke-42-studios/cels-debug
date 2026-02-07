@@ -64,19 +64,17 @@ static char *extract_pipeline_phase(entity_node_t *node) {
     return NULL;
 }
 
-/* Check if entity is a lifecycle controller.
- * Matches: names ending with "LC" or "Cycle" (CEL_Lifecycle macro names),
- * names containing "Lifecycle" (CELS_LifecycleSystem), and legacy "lifecycle_" prefix. */
+/* Check if entity is a user-defined lifecycle controller.
+ * Matches CEL_Lifecycle macro names: "MainMenuLC", "SettingsCycle", etc.
+ * Does NOT match CELS_LifecycleSystem (that's a system, not a lifecycle). */
 static bool name_is_lifecycle(entity_node_t *node) {
     if (!node->name) return false;
-    /* Contains "Lifecycle" (catches CELS_LifecycleSystem, MainMenuLifecycle, etc.) */
-    if (strstr(node->name, "Lifecycle") != NULL) return true;
-    /* Prefix: legacy "lifecycle_0x..." naming */
-    if (strncmp(node->name, "lifecycle_", 10) == 0) return true;
-    /* Suffix: CEL_Lifecycle macro names (MainMenuLC, SettingsCycle) */
+    /* Suffix: CEL_Lifecycle macro names (MainMenuLC, SettingsLC, MenuCycle) */
     size_t nlen = strlen(node->name);
-    if (nlen >= 5 && strcmp(node->name + nlen - 5, "Cycle") == 0) return true;
     if (nlen >= 2 && strcmp(node->name + nlen - 2, "LC") == 0) return true;
+    if (nlen >= 5 && strcmp(node->name + nlen - 5, "Cycle") == 0) return true;
+    /* Legacy: "lifecycle_0x..." prefix from old naming */
+    if (strncmp(node->name, "lifecycle_", 10) == 0) return true;
     return false;
 }
 
@@ -95,12 +93,6 @@ static entity_class_t classify_node(entity_node_t *node) {
     free(node->class_detail);
     node->class_detail = NULL;
 
-    /* L: Lifecycles -- check BEFORE systems since CELS_LifecycleSystem has
-     * both a system tag and "Lifecycle" in its name. Lifecycle entities
-     * include the CELS lifecycle evaluator and user-defined lifecycles. */
-    if (name_is_lifecycle(node)) {
-        return ENTITY_CLASS_LIFECYCLE;
-    }
     /* Systems -- flecs.system.System tag, observers */
     if (has_tag(node, "flecs.system.System")) {
         node->class_detail = extract_pipeline_phase(node);
@@ -110,6 +102,11 @@ static entity_class_t classify_node(entity_node_t *node) {
     if (has_tag(node, "flecs.core.Observer")) {
         node->class_detail = strdup("Observer");
         return ENTITY_CLASS_SYSTEM;
+    }
+    /* L: Lifecycles -- user-defined lifecycle entities (after system check so
+       CELS_LifecycleSystem stays classified as a system) */
+    if (name_is_lifecycle(node)) {
+        return ENTITY_CLASS_LIFECYCLE;
     }
     /* Components -- component type entities */
     if (has_component_component(node)) {
