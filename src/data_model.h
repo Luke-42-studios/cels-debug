@@ -18,14 +18,14 @@ typedef struct world_snapshot {
 world_snapshot_t *world_snapshot_create(void);
 void world_snapshot_free(world_snapshot_t *snap);
 
-// Entity classification -- sections 0-4 spell CELS-C, index 5 is internal (Systems tab)
+// Entity classification -- sections spell CELS + Systems + Components
 typedef enum {
     ENTITY_CLASS_COMPOSITION,  // C: scene structure (AppUI, MainMenu, Button trees)
     ENTITY_CLASS_ENTITY,       // E: entities showing module/system relationships
-    ENTITY_CLASS_LIFECYCLE,    // L: lifecycle controllers (MainMenuLifecycle, etc.)
+    ENTITY_CLASS_LIFECYCLE,    // L: lifecycle controllers (MainMenuLC, CELS_LifecycleSystem)
     ENTITY_CLASS_STATE,        // S: state entities (names ending with "State")
-    ENTITY_CLASS_COMPONENT,    // C: component type definitions (Text, ClickArea, etc.)
-    ENTITY_CLASS_SYSTEM,       // (internal) systems, observers -- used by Systems tab only
+    ENTITY_CLASS_SYSTEM,       // Systems: pipeline systems (TUI_InputSystem, etc.)
+    ENTITY_CLASS_COMPONENT,    // Components: type definitions (Text, ClickArea, etc.)
     ENTITY_CLASS_COUNT
 } entity_class_t;
 

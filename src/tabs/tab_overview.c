@@ -45,6 +45,8 @@ void tab_overview_draw(const tab_t *self, WINDOW *win,
         int max_x = getmaxx(win);
         mvwprintw(win, max_y / 2, (max_x - msg_len) / 2, "%s", msg);
     }
+
+    wnoutrefresh(win);
 }
 
 bool tab_overview_input(tab_t *self, int ch, void *app_state) {

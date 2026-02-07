@@ -27,6 +27,8 @@ void tab_placeholder_draw(const tab_t *self, WINDOW *win,
     wattron(win, A_DIM);
     mvwprintw(win, max_y / 2 + 1, (max_x - name_len) / 2, "%s", name);
     wattroff(win, A_DIM);
+
+    wnoutrefresh(win);
 }
 
 bool tab_placeholder_input(tab_t *self, int ch, void *app_state) {

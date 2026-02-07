@@ -65,15 +65,16 @@ static char *extract_pipeline_phase(entity_node_t *node) {
 }
 
 /* Check if entity is a lifecycle controller.
- * CELS registers lifecycles as "lifecycle_<ptr>" via cels_lifecycle_register_def,
- * and older code may use names ending with "Lifecycle", "LC", or "Cycle". */
+ * Matches: names ending with "LC" or "Cycle" (CEL_Lifecycle macro names),
+ * names containing "Lifecycle" (CELS_LifecycleSystem), and legacy "lifecycle_" prefix. */
 static bool name_is_lifecycle(entity_node_t *node) {
     if (!node->name) return false;
-    /* Current CELS naming: "lifecycle_0x..." prefix */
+    /* Contains "Lifecycle" (catches CELS_LifecycleSystem, MainMenuLifecycle, etc.) */
+    if (strstr(node->name, "Lifecycle") != NULL) return true;
+    /* Prefix: legacy "lifecycle_0x..." naming */
     if (strncmp(node->name, "lifecycle_", 10) == 0) return true;
-    /* Legacy/user naming: suffix checks */
+    /* Suffix: CEL_Lifecycle macro names (MainMenuLC, SettingsCycle) */
     size_t nlen = strlen(node->name);
-    if (nlen >= 9 && strcmp(node->name + nlen - 9, "Lifecycle") == 0) return true;
     if (nlen >= 5 && strcmp(node->name + nlen - 5, "Cycle") == 0) return true;
     if (nlen >= 2 && strcmp(node->name + nlen - 2, "LC") == 0) return true;
     return false;
@@ -94,7 +95,13 @@ static entity_class_t classify_node(entity_node_t *node) {
     free(node->class_detail);
     node->class_detail = NULL;
 
-    /* S: Systems -- flecs.system.System tag, observers, provider-generated */
+    /* L: Lifecycles -- check BEFORE systems since CELS_LifecycleSystem has
+     * both a system tag and "Lifecycle" in its name. Lifecycle entities
+     * include the CELS lifecycle evaluator and user-defined lifecycles. */
+    if (name_is_lifecycle(node)) {
+        return ENTITY_CLASS_LIFECYCLE;
+    }
+    /* Systems -- flecs.system.System tag, observers */
     if (has_tag(node, "flecs.system.System")) {
         node->class_detail = extract_pipeline_phase(node);
         if (!node->class_detail) node->class_detail = strdup("System");
@@ -104,17 +111,13 @@ static entity_class_t classify_node(entity_node_t *node) {
         node->class_detail = strdup("Observer");
         return ENTITY_CLASS_SYSTEM;
     }
-    /* C: Components -- component type entities */
+    /* Components -- component type entities */
     if (has_component_component(node)) {
         return ENTITY_CLASS_COMPONENT;
     }
-    /* S: State -- entities whose name ends with "State" (v0.1 heuristic) */
+    /* S: State -- entities whose name ends with "State" */
     if (name_ends_with_state(node)) {
         return ENTITY_CLASS_STATE;
-    }
-    /* L: Lifecycles -- marker entities whose name ends with "Lifecycle" */
-    if (name_is_lifecycle(node)) {
-        return ENTITY_CLASS_LIFECYCLE;
     }
     /* E: Entities -- leaf scene entities (no children, have component data) */
     if (node->child_count == 0 && node->component_count > 0) {
@@ -138,18 +141,6 @@ static void classify_all_entities(entity_list_t *list) {
     for (int i = 0; i < list->root_count; i++) {
         entity_class_t cls = classify_node(list->roots[i]);
         propagate_class(list->roots[i], cls);
-    }
-}
-
-/* Reclassify system entities as generic entities so the CELS tab
- * does not show a Systems section. The standalone Systems tab handles
- * system display instead. */
-static void hide_systems_from_tree(entity_list_t *list) {
-    if (!list) return;
-    for (int i = 0; i < list->root_count; i++) {
-        if (list->roots[i]->entity_class == ENTITY_CLASS_SYSTEM) {
-            propagate_class(list->roots[i], ENTITY_CLASS_ENTITY);
-        }
     }
 }
 
@@ -424,13 +415,8 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
 
     /* --- Left panel: entity tree --- */
     if (state->entity_list) {
-        /* Classify entities into CELS-C sections */
+        /* Classify entities into CELS sections */
         classify_all_entities(state->entity_list);
-
-        /* Hide system entities from the CELS tab tree -- the standalone
-         * Systems tab handles system display. Reclassify as ENTITY_CLASS_ENTITY
-         * so they appear in the Entities section instead. */
-        hide_systems_from_tree(state->entity_list);
 
         /* Annotate component entities with registry data (entity count, size) */
         annotate_component_entities(state->entity_list, state->component_registry);

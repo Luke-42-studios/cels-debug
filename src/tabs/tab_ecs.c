@@ -78,13 +78,13 @@ static char *extract_pipeline_phase(entity_node_t *node) {
 }
 
 /* Check if entity is a lifecycle controller.
- * CELS registers lifecycles as "lifecycle_<ptr>" via cels_lifecycle_register_def,
- * and older code may use names ending with "Lifecycle", "LC", or "Cycle". */
+ * Matches: names ending with "LC" or "Cycle" (CEL_Lifecycle macro names),
+ * names containing "Lifecycle" (CELS_LifecycleSystem), and legacy "lifecycle_" prefix. */
 static bool name_is_lifecycle(entity_node_t *node) {
     if (!node->name) return false;
+    if (strstr(node->name, "Lifecycle") != NULL) return true;
     if (strncmp(node->name, "lifecycle_", 10) == 0) return true;
     size_t nlen = strlen(node->name);
-    if (nlen >= 9 && strcmp(node->name + nlen - 9, "Lifecycle") == 0) return true;
     if (nlen >= 5 && strcmp(node->name + nlen - 5, "Cycle") == 0) return true;
     if (nlen >= 2 && strcmp(node->name + nlen - 2, "LC") == 0) return true;
     return false;
@@ -95,7 +95,11 @@ static entity_class_t classify_node(entity_node_t *node) {
     free(node->class_detail);
     node->class_detail = NULL;
 
-    /* S: Systems -- flecs.system.System tag, observers, provider-generated */
+    /* L: Lifecycles -- check BEFORE systems (CELS_LifecycleSystem has both) */
+    if (name_is_lifecycle(node)) {
+        return ENTITY_CLASS_LIFECYCLE;
+    }
+    /* Systems -- flecs.system.System tag, observers */
     if (has_tag(node, "flecs.system.System")) {
         node->class_detail = extract_pipeline_phase(node);
         if (!node->class_detail) node->class_detail = strdup("System");
@@ -105,13 +109,9 @@ static entity_class_t classify_node(entity_node_t *node) {
         node->class_detail = strdup("Observer");
         return ENTITY_CLASS_SYSTEM;
     }
-    /* C: Components -- component type entities */
+    /* Components -- component type entities */
     if (has_component_component(node)) {
         return ENTITY_CLASS_COMPONENT;
-    }
-    /* L: Lifecycles -- marker entities whose name ends with "Lifecycle" */
-    if (name_is_lifecycle(node)) {
-        return ENTITY_CLASS_LIFECYCLE;
     }
     /* E: Entities -- leaf scene entities (no children, have component data) */
     if (node->child_count == 0 && node->component_count > 0) {
