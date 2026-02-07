@@ -450,6 +450,27 @@ static void draw_system_detail(WINDOW *rwin, int rh, int rw,
         wattroff(rwin, A_DIM);
     }
 
+    /* Description (from CEL_Description) */
+    if (state->entity_detail && sel->full_path &&
+        strcmp(state->entity_detail->path, sel->full_path) == 0 &&
+        state->entity_detail->doc_brief) {
+        row++;
+        wattron(rwin, A_DIM);
+        const char *line_start = state->entity_detail->doc_brief;
+        while (*line_start) {
+            const char *line_end = strchr(line_start, '\n');
+            int line_len = line_end ? (int)(line_end - line_start) : (int)strlen(line_start);
+            if (line_len > rw - 4) line_len = rw - 4;
+            if (row < rh) {
+                mvwprintw(rwin, row, 2, "%.*s", line_len, line_start);
+                row++;
+            }
+            if (line_end) line_start = line_end + 1;
+            else break;
+        }
+        wattroff(rwin, A_DIM);
+    }
+
     /* Component access list from entity detail */
     if (state->entity_detail && sel->full_path &&
         strcmp(state->entity_detail->path, sel->full_path) == 0) {

@@ -599,6 +599,28 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             cs->inspector_scroll.visible_rows = rh;
             scroll_ensure_visible(&cs->inspector_scroll);
 
+            /* Description (from CEL_Description) */
+            int desc_rows = 0;
+            if (detail->doc_brief) {
+                wattron(rwin, A_DIM);
+                const char *line_start = detail->doc_brief;
+                int drow = 1;
+                while (*line_start) {
+                    const char *line_end = strchr(line_start, '\n');
+                    int line_len = line_end ? (int)(line_end - line_start) : (int)strlen(line_start);
+                    if (line_len > rw - 4) line_len = rw - 4;
+                    if (drow < rh) {
+                        mvwprintw(rwin, drow, 2, "%.*s", line_len, line_start);
+                        drow++;
+                        desc_rows++;
+                    }
+                    if (line_end) line_start = line_end + 1;
+                    else break;
+                }
+                wattroff(rwin, A_DIM);
+                if (desc_rows > 0) desc_rows++; /* blank line after description */
+            }
+
             int logical_row = 0;
             int group_idx = 0;
 
@@ -623,9 +645,9 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                     }
 
                     if (logical_row + rows_for_this > cs->inspector_scroll.scroll_offset &&
-                        logical_row < cs->inspector_scroll.scroll_offset + rh) {
-                        int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1;
-                        if (start_render < 1) start_render = 1;
+                        logical_row < cs->inspector_scroll.scroll_offset + rh - desc_rows) {
+                        int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1 + desc_rows;
+                        if (start_render < 1 + desc_rows) start_render = 1 + desc_rows;
                         json_render_component(rwin, yyjson_get_str(key), val,
                                               start_render, 1, rh + 1, rw, exp);
                     }
@@ -643,9 +665,9 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                 int tag_rows = 1 + (tags_exp ? (int)yyjson_arr_size(detail->tags) : 0);
 
                 if (logical_row + tag_rows > cs->inspector_scroll.scroll_offset &&
-                    logical_row < cs->inspector_scroll.scroll_offset + rh) {
-                    int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1;
-                    if (start_render < 1) start_render = 1;
+                    logical_row < cs->inspector_scroll.scroll_offset + rh - desc_rows) {
+                    int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1 + desc_rows;
+                    if (start_render < 1 + desc_rows) start_render = 1 + desc_rows;
 
                     if (start_render <= rh) {
                         wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
@@ -681,9 +703,9 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                 int pair_rows = 1 + (pairs_exp ? (int)yyjson_obj_size(detail->pairs) : 0);
 
                 if (logical_row + pair_rows > cs->inspector_scroll.scroll_offset &&
-                    logical_row < cs->inspector_scroll.scroll_offset + rh) {
-                    int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1;
-                    if (start_render < 1) start_render = 1;
+                    logical_row < cs->inspector_scroll.scroll_offset + rh - desc_rows) {
+                    int start_render = logical_row - cs->inspector_scroll.scroll_offset + 1 + desc_rows;
+                    if (start_render < 1 + desc_rows) start_render = 1 + desc_rows;
 
                     if (start_render <= rh) {
                         wattron(rwin, COLOR_PAIR(CP_COMPONENT_HEADER) | A_BOLD);
