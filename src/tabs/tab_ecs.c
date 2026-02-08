@@ -261,6 +261,7 @@ static int count_inspector_rows(const entity_detail_t *detail,
         yyjson_val *key, *val;
         int comp_idx = 0;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             rows++;
             bool exp = (comp_idx < expanded_count) ? expanded[comp_idx] : true;
             if (exp && val && !yyjson_is_null(val)) {
@@ -331,6 +332,7 @@ static int cursor_to_group_index(const entity_detail_t *detail,
         size_t idx, max;
         yyjson_val *key, *val;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             if (row == cursor_row) return group_idx;
             row++;
             bool exp = (group_idx < expanded_count) ? expanded[group_idx] : true;
@@ -540,7 +542,7 @@ static void draw_system_detail(WINDOW *rwin, int rh, int rw,
         wattroff(rwin, A_DIM);
     }
 
-    /* Description (from CEL_Description) */
+    /* Description (from CEL_Doc) */
     if (state->entity_detail && sel->full_path &&
         strcmp(state->entity_detail->path, sel->full_path) == 0 &&
         state->entity_detail->doc_brief) {
@@ -575,6 +577,7 @@ static void draw_system_detail(WINDOW *rwin, int rh, int rw,
             size_t ci, cmax;
             yyjson_val *ckey, *cval;
             yyjson_obj_foreach(state->entity_detail->components, ci, cmax, ckey, cval) {
+                if (is_hidden_component(yyjson_get_str(ckey))) continue;
                 if (row >= rh) break;
                 wattron(rwin, COLOR_PAIR(CP_JSON_STRING));
                 mvwprintw(rwin, row, 3, "%.*s", rw - 4, yyjson_get_str(ckey));
@@ -1160,7 +1163,7 @@ void tab_ecs_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             es->inspector_scroll.visible_rows = rh;
             scroll_ensure_visible(&es->inspector_scroll);
 
-            /* Description (from CEL_Description) */
+            /* Description (from CEL_Doc) */
             int desc_rows = 0;
             if (detail->doc_brief) {
                 wattron(rwin, A_DIM);
@@ -1190,6 +1193,7 @@ void tab_ecs_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                 size_t idx, max;
                 yyjson_val *key, *val;
                 yyjson_obj_foreach(detail->components, idx, max, key, val) {
+                    if (is_hidden_component(yyjson_get_str(key))) continue;
                     bool exp = (group_idx < es->comp_expanded_count)
                                    ? es->comp_expanded[group_idx]
                                    : true;

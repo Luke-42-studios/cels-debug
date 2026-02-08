@@ -32,6 +32,7 @@ static int count_inspector_rows(const entity_detail_t *detail,
         yyjson_val *key, *val;
         int comp_idx = 0;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             rows++; /* header row */
             bool exp = (comp_idx < expanded_count) ? expanded[comp_idx] : true;
             if (exp && val && !yyjson_is_null(val)) {
@@ -108,6 +109,7 @@ static int cursor_to_group_index(const entity_detail_t *detail,
         size_t idx, max;
         yyjson_val *key, *val;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             if (row == cursor_row) return group_idx;
             row++; /* header */
             bool exp = (group_idx < expanded_count) ? expanded[group_idx] : true;
@@ -215,12 +217,14 @@ void tab_entities_draw(const tab_t *self, WINDOW *win, const void *app_state) {
         tree_view_rebuild_visible(&es->tree, state->entity_list);
 
         /* Auto-select first entity if nothing selected yet */
-        if (!state->selected_entity_path && es->tree.visible_count > 0) {
-            entity_node_t *first = es->tree.visible[0];
-            if (first && first->full_path) {
-                /* Cast away const for this auto-select on first display */
-                app_state_t *mut_state = (app_state_t *)state;
-                mut_state->selected_entity_path = strdup(first->full_path);
+        if (!state->selected_entity_path && es->tree.row_count > 0) {
+            for (int ri = 0; ri < es->tree.row_count; ri++) {
+                entity_node_t *n = es->tree.rows[ri].node;
+                if (n && n->full_path) {
+                    app_state_t *mut_state = (app_state_t *)state;
+                    mut_state->selected_entity_path = strdup(n->full_path);
+                    break;
+                }
             }
         }
 
@@ -258,7 +262,7 @@ void tab_entities_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             es->inspector_scroll.visible_rows = rh;
             scroll_ensure_visible(&es->inspector_scroll);
 
-            /* Description (from CEL_Description) */
+            /* Description (from CEL_Doc) */
             int desc_rows = 0;
             if (detail->doc_brief) {
                 wattron(rwin, A_DIM);
@@ -289,6 +293,7 @@ void tab_entities_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                 size_t idx, max;
                 yyjson_val *key, *val;
                 yyjson_obj_foreach(detail->components, idx, max, key, val) {
+                    if (is_hidden_component(yyjson_get_str(key))) continue;
                     bool exp = (group_idx < es->comp_expanded_count)
                                    ? es->comp_expanded[group_idx]
                                    : true;

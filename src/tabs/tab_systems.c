@@ -450,7 +450,7 @@ static void draw_system_detail(WINDOW *rwin, int rh, int rw,
         wattroff(rwin, A_DIM);
     }
 
-    /* Description (from CEL_Description) */
+    /* Description (from CEL_Doc) */
     if (state->entity_detail && sel->full_path &&
         strcmp(state->entity_detail->path, sel->full_path) == 0 &&
         state->entity_detail->doc_brief) {
@@ -485,6 +485,7 @@ static void draw_system_detail(WINDOW *rwin, int rh, int rw,
             size_t ci, cmax;
             yyjson_val *ckey, *cval;
             yyjson_obj_foreach(state->entity_detail->components, ci, cmax, ckey, cval) {
+                if (is_hidden_component(yyjson_get_str(ckey))) continue;
                 if (row >= rh) break;
                 wattron(rwin, COLOR_PAIR(CP_JSON_STRING));
                 mvwprintw(rwin, row, 3, "%.*s", rw - 4, yyjson_get_str(ckey));

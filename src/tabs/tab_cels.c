@@ -183,6 +183,7 @@ static int count_inspector_rows(const entity_detail_t *detail,
         yyjson_val *key, *val;
         int comp_idx = 0;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             rows++;
             bool exp = (comp_idx < expanded_count) ? expanded[comp_idx] : true;
             if (exp && val && !yyjson_is_null(val)) {
@@ -253,6 +254,7 @@ static int cursor_to_group_index(const entity_detail_t *detail,
         size_t idx, max;
         yyjson_val *key, *val;
         yyjson_obj_foreach(detail->components, idx, max, key, val) {
+            if (is_hidden_component(yyjson_get_str(key))) continue;
             if (row == cursor_row) return group_idx;
             row++;
             bool exp = (group_idx < expanded_count) ? expanded[group_idx] : true;
@@ -599,7 +601,7 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
             cs->inspector_scroll.visible_rows = rh;
             scroll_ensure_visible(&cs->inspector_scroll);
 
-            /* Description (from CEL_Description) */
+            /* Description (from CEL_Doc) */
             int desc_rows = 0;
             if (detail->doc_brief) {
                 wattron(rwin, A_DIM);
@@ -629,6 +631,7 @@ void tab_cels_draw(const tab_t *self, WINDOW *win, const void *app_state) {
                 size_t idx, max;
                 yyjson_val *key, *val;
                 yyjson_obj_foreach(detail->components, idx, max, key, val) {
+                    if (is_hidden_component(yyjson_get_str(key))) continue;
                     bool exp = (group_idx < cs->comp_expanded_count)
                                    ? cs->comp_expanded[group_idx]
                                    : true;
