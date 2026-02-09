@@ -124,3 +124,28 @@ void system_registry_free(system_registry_t *reg) {
     free(reg->systems);
     free(reg);
 }
+
+/* --- Test report --- */
+
+test_report_t *test_report_create(void) {
+    return calloc(1, sizeof(test_report_t));
+}
+
+void test_report_free(test_report_t *report) {
+    if (!report) return;
+    free(report->version);
+    for (int i = 0; i < report->test_count; i++) {
+        free(report->tests[i].suite);
+        free(report->tests[i].name);
+    }
+    free(report->tests);
+    for (int i = 0; i < report->bench_count; i++) {
+        free(report->benchmarks[i].name);
+    }
+    free(report->benchmarks);
+    for (int i = 0; i < report->baseline_count; i++) {
+        free(report->baseline[i].name);
+    }
+    free(report->baseline);
+    free(report);
+}

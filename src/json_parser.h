@@ -37,4 +37,16 @@ component_registry_t *json_parse_component_registry(const char *json, size_t len
 // Caller owns the returned registry and must call system_registry_free().
 system_registry_t *json_parse_pipeline_stats(const char *json, size_t len);
 
+// Parse test report JSON (tests/output/latest.json) into a test_report_t.
+// Expects: { "version", "timestamp", "summary", "tests": [...], "benchmarks": [...] }
+// Returns a newly allocated report on success, NULL on parse failure.
+// Caller owns the returned report and must call test_report_free().
+test_report_t *json_parse_test_report(const char *json, size_t len);
+
+// Parse benchmark baseline JSON (tests/output/baseline.json) benchmarks array.
+// Fills report->baseline and report->baseline_count.
+// Returns true on success, false on failure. Does not free existing baseline.
+bool json_parse_bench_baseline(const char *json, size_t len,
+                               test_report_t *report);
+
 #endif // CELS_DEBUG_JSON_PARSER_H

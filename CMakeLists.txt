@@ -37,6 +37,7 @@ add_executable(cels-debug
     src/tabs/tab_cels.c
     src/tabs/tab_systems.c
     src/tabs/tab_performance.c
+    src/tabs/tab_tests.c
 )
 
 set_target_properties(cels-debug PROPERTIES
@@ -48,6 +49,12 @@ set_target_properties(cels-debug PROPERTIES
 target_include_directories(cels-debug PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CURSES_INCLUDE_DIRS}
+)
+
+# Default test output path (CELS project root tests/output/)
+# CMAKE_CURRENT_SOURCE_DIR is tools/cels-debug/, go up two levels
+target_compile_definitions(cels-debug PRIVATE
+    CELS_TEST_OUTPUT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tests/output"
 )
 
 target_link_libraries(cels-debug PRIVATE

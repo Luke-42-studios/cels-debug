@@ -3,6 +3,7 @@
 #include "tabs/tab_cels.h"
 #include "tabs/tab_systems.h"
 #include "tabs/tab_performance.h"
+#include "tabs/tab_tests.h"
 
 /* Tab definitions (static, const) */
 static const tab_def_t tab_defs[TAB_COUNT] = {
@@ -18,6 +19,9 @@ static const tab_def_t tab_defs[TAB_COUNT] = {
     { "Performance",  ENDPOINT_STATS_WORLD | ENDPOINT_STATS_PIPELINE | ENDPOINT_QUERY,
       tab_performance_init, tab_performance_fini,
       tab_performance_draw, tab_performance_input },
+    { "Tests",        ENDPOINT_NONE,
+      tab_tests_init, tab_tests_fini,
+      tab_tests_draw, tab_tests_input },
 };
 
 void tab_system_init(tab_system_t *ts) {

@@ -3,7 +3,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <yyjson.h>
+
+/* Hide flecs internal doc components from inspector display */
+static inline bool is_hidden_component(const char *name) {
+    return name && strncmp(name, "flecs.doc.", 10) == 0;
+}
 
 // Snapshot of /stats/world response
 // Each poll produces a new snapshot; previous is freed atomically
@@ -133,5 +139,42 @@ void component_registry_free(component_registry_t *reg);
 // System registry lifecycle
 system_registry_t *system_registry_create(void);
 void system_registry_free(system_registry_t *reg);
+
+// Single test result (from tests/output/latest.json)
+typedef struct test_result {
+    char *suite;             // e.g., "CelsFixture", "bench", "utility"
+    char *name;              // e.g., "component_register"
+    int status;              // 0=passed, 1=failed, 2=skipped
+    int64_t duration_ns;
+} test_result_t;
+
+// Single benchmark result (from tests/output/latest.json)
+typedef struct bench_result {
+    char *name;              // e.g., "entity_create_1000"
+    uint64_t cycles;
+    double wall_ns;
+    uint64_t memory_bytes;
+} bench_result_t;
+
+// Complete test report parsed from JSON
+typedef struct test_report {
+    char *version;
+    int64_t timestamp;
+    int total;
+    int passed;
+    int failed;
+    int skipped;
+    test_result_t *tests;
+    int test_count;
+    bench_result_t *benchmarks;
+    int bench_count;
+    // Baseline benchmarks (from baseline.json, may be NULL)
+    bench_result_t *baseline;
+    int baseline_count;
+} test_report_t;
+
+// Test report lifecycle
+test_report_t *test_report_create(void);
+void test_report_free(test_report_t *report);
 
 #endif // CELS_DEBUG_DATA_MODEL_H

@@ -37,6 +37,12 @@
 #define CP_PHASE_CUSTOM      25
 #define CP_SYSTEM_DISABLED   26
 
+/* Phase 06: test tab color pairs */
+#define CP_TEST_PASSED       27
+#define CP_TEST_FAILED       28
+#define CP_BENCH_REGRESSION  29
+#define CP_BENCH_IMPROVEMENT 30
+
 /* Navigation back-stack for cross-tab jumps (Esc returns to origin) */
 #define NAV_STACK_MAX 8
 
@@ -65,6 +71,10 @@ typedef struct app_state {
     int                    pending_tab;      /* cross-tab navigation: >=0 = switch to tab, -1 = none */
     nav_stack_t            nav_stack;        /* back-navigation stack for cross-tab jumps */
     int                    poll_interval_ms; /* configurable refresh interval, default 500 */
+    /* Phase 06: test report from disk */
+    test_report_t         *test_report;     /* parsed tests/output/latest.json */
+    char                  *test_json_path;  /* path to latest.json (from -t flag) */
+    char                  *baseline_json_path; /* path to baseline.json */
 } app_state_t;
 
 /* Initialize ncurses, signal handlers, atexit, color pairs, windows. */

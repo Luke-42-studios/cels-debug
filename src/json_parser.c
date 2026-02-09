@@ -194,9 +194,12 @@ entity_list_t *json_parse_entity_list(const char *json, size_t len) {
                     yyjson_val *ckey, *cval;
                     int c = 0;
                     yyjson_obj_foreach(comps, ci, cmax, ckey, cval) {
-                        node->component_names[c++] =
-                            strdup(yyjson_get_str(ckey));
+                        const char *name = yyjson_get_str(ckey);
+                        if (name && strncmp(name, "flecs.doc.", 10) == 0)
+                            continue;
+                        node->component_names[c++] = strdup(name);
                     }
+                    node->component_count = c;
                 }
             }
         }
@@ -448,6 +451,176 @@ system_registry_t *json_parse_pipeline_stats(const char *json, size_t len) {
     reg->count = si;
     yyjson_doc_free(doc);
     return reg;
+}
+
+/* --- Test report parser --- */
+
+test_report_t *json_parse_test_report(const char *json, size_t len) {
+    if (!json || len == 0) return NULL;
+
+    yyjson_doc *doc = yyjson_read(json, len, 0);
+    if (!doc) return NULL;
+
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    if (!root || !yyjson_is_obj(root)) {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    test_report_t *report = test_report_create();
+    if (!report) {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    /* Version + timestamp */
+    yyjson_val *ver = yyjson_obj_get(root, "version");
+    if (ver && yyjson_is_str(ver)) {
+        report->version = strdup(yyjson_get_str(ver));
+    }
+    yyjson_val *ts = yyjson_obj_get(root, "timestamp");
+    if (ts && yyjson_is_num(ts)) {
+        report->timestamp = yyjson_get_sint(ts);
+    }
+
+    /* Summary */
+    yyjson_val *summary = yyjson_obj_get(root, "summary");
+    if (summary && yyjson_is_obj(summary)) {
+        yyjson_val *v;
+        v = yyjson_obj_get(summary, "total");
+        if (v) report->total = (int)yyjson_get_int(v);
+        v = yyjson_obj_get(summary, "passed");
+        if (v) report->passed = (int)yyjson_get_int(v);
+        v = yyjson_obj_get(summary, "failed");
+        if (v) report->failed = (int)yyjson_get_int(v);
+        v = yyjson_obj_get(summary, "skipped");
+        if (v) report->skipped = (int)yyjson_get_int(v);
+    }
+
+    /* Tests array */
+    yyjson_val *tests = yyjson_obj_get(root, "tests");
+    if (tests && yyjson_is_arr(tests)) {
+        size_t count = yyjson_arr_size(tests);
+        if (count > 0) {
+            report->tests = calloc(count, sizeof(test_result_t));
+            if (report->tests) {
+                size_t idx, max;
+                yyjson_val *entry;
+                int ti = 0;
+                yyjson_arr_foreach(tests, idx, max, entry) {
+                    yyjson_val *suite_val = yyjson_obj_get(entry, "suite");
+                    yyjson_val *name_val = yyjson_obj_get(entry, "name");
+                    yyjson_val *status_val = yyjson_obj_get(entry, "status");
+                    yyjson_val *dur_val = yyjson_obj_get(entry, "duration_ns");
+
+                    if (suite_val && yyjson_is_str(suite_val))
+                        report->tests[ti].suite = strdup(yyjson_get_str(suite_val));
+                    if (name_val && yyjson_is_str(name_val))
+                        report->tests[ti].name = strdup(yyjson_get_str(name_val));
+                    if (status_val && yyjson_is_str(status_val)) {
+                        const char *s = yyjson_get_str(status_val);
+                        if (strcmp(s, "passed") == 0) report->tests[ti].status = 0;
+                        else if (strcmp(s, "failed") == 0) report->tests[ti].status = 1;
+                        else report->tests[ti].status = 2;
+                    }
+                    if (dur_val && yyjson_is_num(dur_val))
+                        report->tests[ti].duration_ns = yyjson_get_sint(dur_val);
+                    ti++;
+                }
+                report->test_count = ti;
+            }
+        }
+    }
+
+    /* Benchmarks array */
+    yyjson_val *benchmarks = yyjson_obj_get(root, "benchmarks");
+    if (benchmarks && yyjson_is_arr(benchmarks)) {
+        size_t count = yyjson_arr_size(benchmarks);
+        if (count > 0) {
+            report->benchmarks = calloc(count, sizeof(bench_result_t));
+            if (report->benchmarks) {
+                size_t idx, max;
+                yyjson_val *entry;
+                int bi = 0;
+                yyjson_arr_foreach(benchmarks, idx, max, entry) {
+                    yyjson_val *name_val = yyjson_obj_get(entry, "name");
+                    yyjson_val *cycles_val = yyjson_obj_get(entry, "cycles");
+                    yyjson_val *wall_val = yyjson_obj_get(entry, "wall_ns");
+                    yyjson_val *mem_val = yyjson_obj_get(entry, "memory_bytes");
+
+                    if (name_val && yyjson_is_str(name_val))
+                        report->benchmarks[bi].name = strdup(yyjson_get_str(name_val));
+                    if (cycles_val && yyjson_is_num(cycles_val))
+                        report->benchmarks[bi].cycles = yyjson_get_uint(cycles_val);
+                    if (wall_val && yyjson_is_num(wall_val))
+                        report->benchmarks[bi].wall_ns = yyjson_get_num(wall_val);
+                    if (mem_val && yyjson_is_num(mem_val))
+                        report->benchmarks[bi].memory_bytes = yyjson_get_uint(mem_val);
+                    bi++;
+                }
+                report->bench_count = bi;
+            }
+        }
+    }
+
+    yyjson_doc_free(doc);
+    return report;
+}
+
+bool json_parse_bench_baseline(const char *json, size_t len,
+                               test_report_t *report) {
+    if (!json || len == 0 || !report) return false;
+
+    yyjson_doc *doc = yyjson_read(json, len, 0);
+    if (!doc) return false;
+
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    if (!root || !yyjson_is_obj(root)) {
+        yyjson_doc_free(doc);
+        return false;
+    }
+
+    yyjson_val *benchmarks = yyjson_obj_get(root, "benchmarks");
+    if (!benchmarks || !yyjson_is_arr(benchmarks)) {
+        yyjson_doc_free(doc);
+        return false;
+    }
+
+    size_t count = yyjson_arr_size(benchmarks);
+    if (count == 0) {
+        yyjson_doc_free(doc);
+        return true;
+    }
+
+    report->baseline = calloc(count, sizeof(bench_result_t));
+    if (!report->baseline) {
+        yyjson_doc_free(doc);
+        return false;
+    }
+
+    size_t idx, max;
+    yyjson_val *entry;
+    int bi = 0;
+    yyjson_arr_foreach(benchmarks, idx, max, entry) {
+        yyjson_val *name_val = yyjson_obj_get(entry, "name");
+        yyjson_val *cycles_val = yyjson_obj_get(entry, "cycles");
+        yyjson_val *wall_val = yyjson_obj_get(entry, "wall_ns");
+        yyjson_val *mem_val = yyjson_obj_get(entry, "memory_bytes");
+
+        if (name_val && yyjson_is_str(name_val))
+            report->baseline[bi].name = strdup(yyjson_get_str(name_val));
+        if (cycles_val && yyjson_is_num(cycles_val))
+            report->baseline[bi].cycles = yyjson_get_uint(cycles_val);
+        if (wall_val && yyjson_is_num(wall_val))
+            report->baseline[bi].wall_ns = yyjson_get_num(wall_val);
+        if (mem_val && yyjson_is_num(mem_val))
+            report->baseline[bi].memory_bytes = yyjson_get_uint(mem_val);
+        bi++;
+    }
+    report->baseline_count = bi;
+
+    yyjson_doc_free(doc);
+    return true;
 }
 
 /* --- Component registry parser --- */

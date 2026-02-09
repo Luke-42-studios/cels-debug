@@ -111,6 +111,12 @@ void tui_init(void) {
         init_pair(CP_PHASE_POSTFRAME,  COLOR_WHITE,   -1);
         init_pair(CP_PHASE_CUSTOM,     COLOR_WHITE,   -1);
         init_pair(CP_SYSTEM_DISABLED,  COLOR_WHITE,   -1);
+
+        /* Phase 06: test tab color pairs */
+        init_pair(CP_TEST_PASSED,       COLOR_GREEN,   -1);
+        init_pair(CP_TEST_FAILED,       COLOR_RED,     -1);
+        init_pair(CP_BENCH_REGRESSION,  COLOR_RED,     -1);
+        init_pair(CP_BENCH_IMPROVEMENT, COLOR_GREEN,   -1);
     }
 
     /* Use terminal default background on stdscr */
@@ -186,19 +192,22 @@ void tui_render(const tab_system_t *tabs, const app_state_t *state) {
         const char *hints;
         switch (tabs->active) {
         case 0:  /* Overview */
-            hints = "1-4:tabs  q:quit";
+            hints = "1-5:tabs  q:quit";
             break;
         case 1:  /* CELS */
-            hints = "1-4:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
+            hints = "1-5:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
             break;
         case 2:  /* Systems */
-            hints = "1-4:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
+            hints = "1-5:tabs  jk:scroll  Enter:expand  f:anon  Esc:back  q:quit";
             break;
         case 3:  /* Performance */
-            hints = "1-4:tabs  jk:scroll  q:quit";
+            hints = "1-5:tabs  jk:scroll  q:quit";
+            break;
+        case 4:  /* Tests */
+            hints = "1-5:tabs  jk:scroll  r:refresh  q:quit";
             break;
         default:
-            hints = "1-4:tabs  q:quit";
+            hints = "1-5:tabs  q:quit";
             break;
         }
         mvwprintw(win_footer, 0, 1, "%s", hints);

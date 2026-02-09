@@ -45,11 +45,11 @@ struct tab_t {
 };
 
 /* Tab system (owns the tab array) */
-#define TAB_COUNT 4
+#define TAB_COUNT 5
 
 struct tab_system {
     tab_t tabs[TAB_COUNT];
-    int   active;              /* index of currently active tab [0..3] */
+    int   active;              /* index of currently active tab [0..4] */
 };
 
 /* Lifecycle */

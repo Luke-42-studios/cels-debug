@@ -49,11 +49,17 @@ static int64_t now_ms(void) {
 int main(int argc, char *argv[]) {
     /* Parse command-line flags */
     int poll_interval = POLL_INTERVAL_MS;
+    const char *test_json_path = CELS_TEST_OUTPUT_DIR "/latest.json";
+    const char *baseline_json_path = NULL;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
             poll_interval = atoi(argv[++i]);
             if (poll_interval < 100) poll_interval = 100;    /* minimum 100ms */
             if (poll_interval > 5000) poll_interval = 5000;  /* maximum 5s */
+        } else if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
+            test_json_path = argv[++i];
+        } else if (strcmp(argv[i], "-b") == 0 && i + 1 < argc) {
+            baseline_json_path = argv[++i];
         }
     }
 
@@ -79,6 +85,29 @@ int main(int argc, char *argv[]) {
     app_state.pending_tab = -1;
     app_state.nav_stack.top = -1;
     app_state.poll_interval_ms = poll_interval;
+    if (test_json_path) {
+        app_state.test_json_path = strdup(test_json_path);
+        /* Default baseline path: same directory as latest.json */
+        if (baseline_json_path) {
+            app_state.baseline_json_path = strdup(baseline_json_path);
+        } else {
+            /* Derive baseline path from test_json_path:
+             * replace "latest.json" with "baseline.json" */
+            size_t tlen = strlen(test_json_path);
+            const char *latest = "latest.json";
+            size_t llen = strlen(latest);
+            if (tlen >= llen &&
+                strcmp(test_json_path + tlen - llen, latest) == 0) {
+                size_t prefix_len = tlen - llen;
+                char *bpath = malloc(prefix_len + strlen("baseline.json") + 1);
+                if (bpath) {
+                    memcpy(bpath, test_json_path, prefix_len);
+                    strcpy(bpath + prefix_len, "baseline.json");
+                    app_state.baseline_json_path = bpath;
+                }
+            }
+        }
+    }
     int64_t last_poll = 0;
 
     /* Main loop */
@@ -254,6 +283,9 @@ int main(int argc, char *argv[]) {
     entity_detail_free(app_state.entity_detail);
     component_registry_free(app_state.component_registry);
     system_registry_free(app_state.system_registry);
+    test_report_free(app_state.test_report);
+    free(app_state.test_json_path);
+    free(app_state.baseline_json_path);
     free(app_state.selected_entity_path);
     free(app_state.footer_message);
     http_client_fini(curl);
